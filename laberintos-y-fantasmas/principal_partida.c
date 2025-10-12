@@ -4,6 +4,7 @@
 #include <conio.h>   // para getch()
 #include "codigosRet.h"
 #include "interno_jugador.h"
+#include "interno_fantasma.h"
 #include "principal_menu.h"
 
 int partida()
@@ -54,6 +55,10 @@ int loopPartida(char **matriz, tConfig *conf)
     int filaEntrada, columnaEntrada;
     int filaSalida, columnaSalida;
     char tecla;
+//    tTile* fantasmas = malloc(CANT_F * sizeof(tTile)); // Reemplazar CANT_F por la variable contadora que debe enviarse por parametro despues de crear el laberinto
+//    tTile* puntos = malloc(CANT_P * sizeof(tTile)); // Reemplazar CANT_P por la variable contadora que debe enviarse por parametro despues de crear el laberinto
+//    tTile* vidas = malloc(CANT_V * sizeof(tTile)); // Reemplazar CANT_V por la variable contadora que debe enviarse por parametro despues de crear el laberinto
+//    tCola movimientos;
 
     jug.vidas = conf->vidasInicio;
     jug.puntos = 0;
