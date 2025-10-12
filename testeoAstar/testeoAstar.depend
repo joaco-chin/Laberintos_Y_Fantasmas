@@ -1,0 +1,42 @@
+# depslib dependency file v1.0
+1760226506 source:d:\documentos\unlam\algoritmos y estructuras de datos\tp_laberintos_y_fantasmas\dev_joaquin\laberintos_y_fantasmas\testeoastar\main.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<windows.h>
+	<conio.h>
+	"estructuras_lista.h"
+	"estructuras_cola.h"
+	"estructuras_pila.h"
+
+1760065271 source:d:\documentos\unlam\algoritmos y estructuras de datos\tp_laberintos_y_fantasmas\dev_joaquin\laberintos_y_fantasmas\testeoastar\estructuras_lista.c
+	"estructuras_lista.h"
+	<stdlib.h>
+	<string.h>
+
+1759968226 d:\documentos\unlam\algoritmos y estructuras de datos\tp_laberintos_y_fantasmas\dev_joaquin\laberintos_y_fantasmas\testeoastar\estructuras_lista.h
+	"estructuras_comun.h"
+	"generico.h"
+
+1759937276 d:\documentos\unlam\algoritmos y estructuras de datos\tp_laberintos_y_fantasmas\dev_joaquin\laberintos_y_fantasmas\testeoastar\estructuras_comun.h
+
+1760063803 d:\documentos\unlam\algoritmos y estructuras de datos\tp_laberintos_y_fantasmas\dev_joaquin\laberintos_y_fantasmas\testeoastar\generico.h
+
+1760117605 source:d:\documentos\unlam\algoritmos y estructuras de datos\tp_laberintos_y_fantasmas\dev_joaquin\laberintos_y_fantasmas\testeoastar\estructuras_cola.c
+	"estructuras_cola.h"
+	<stdlib.h>
+	<string.h>
+	"generico.h"
+
+1760117425 d:\documentos\unlam\algoritmos y estructuras de datos\tp_laberintos_y_fantasmas\dev_joaquin\laberintos_y_fantasmas\testeoastar\estructuras_cola.h
+	"estructuras_comun.h"
+
+1760119784 source:d:\documentos\unlam\algoritmos y estructuras de datos\tp_laberintos_y_fantasmas\dev_joaquin\laberintos_y_fantasmas\testeoastar\estructuras_pila.c
+	"estructuras_pila.h"
+	<stdlib.h>
+	<string.h>
+	"generico.h"
+
+1760119753 d:\documentos\unlam\algoritmos y estructuras de datos\tp_laberintos_y_fantasmas\dev_joaquin\laberintos_y_fantasmas\testeoastar\estructuras_pila.h
+	"estructuras_comun.h"
+
