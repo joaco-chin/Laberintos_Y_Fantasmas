@@ -13,13 +13,15 @@
 #define NO_ENCONTRADO -2
 #define COSTO_MAX 100000000
 
-typedef struct sInfoNodo
+typedef struct
 {
     int fil;
     int col;
     int costoG;
     int costoH;
     int costoF;
+    int filPadre;
+    int colPadre;
 }tInfoNodo;
 
 int cmpCostos(const void* a, const void* b)
@@ -89,8 +91,8 @@ int aStarBusqueda(char matriz[][COL], int cf, int cc, const tInfoNodo* inicio, c
 {
     tLista openSet, closedSet;
     tCola vecinos;
-    tInfoNodo nodoAct = {inicio->fil, inicio->col, 0, 0, 0}, nodoVecino, nodoAux;
-    int tentativoG;
+    tPila camino;
+    tInfoNodo nodoAct = {inicio->fil, inicio->col, 0, 0, 0, -1, -1}, nodoVecino, nodoAux;
     int pos;
     int metaAlcanzada = 0;
     int codigoDeError = TODO_OK;
@@ -98,6 +100,7 @@ int aStarBusqueda(char matriz[][COL], int cf, int cc, const tInfoNodo* inicio, c
     listaCrear(&openSet);
     listaCrear(&closedSet);
     colaCrear(&vecinos);
+    pilaCrear(&camino);
 
     codigoDeError = listaInsertarAlInicio(&openSet, &nodoAct, sizeof(tInfoNodo)); // Insertamos el nodo actual que en el momento contiene al nodo inicial
     while(codigoDeError == TODO_OK && listaEstaVacia(&openSet) != LISTA_VACIA && metaAlcanzada != 1)
@@ -110,7 +113,36 @@ int aStarBusqueda(char matriz[][COL], int cf, int cc, const tInfoNodo* inicio, c
             puts("Camino encontrado");
             metaAlcanzada = 1;
 
-            codigoDeError = colaEncolar(movimientos, meta, sizeof(tInfoNodo));
+            // Recorremos todos los nodos padres hasta volver al inicio
+            codigoDeError = pilaApilar(&camino, &nodoAct, sizeof(tInfoNodo));
+            while(codigoDeError == TODO_OK && nodoAct.filPadre != -1 && nodoAct.colPadre != -1)
+            {
+                nodoAct.fil = nodoAct.filPadre;
+                nodoAct.col = nodoAct.colPadre;
+                pos = listaBuscarPorClave(&closedSet, &nodoAct, cmpPos);
+
+                if(pos == -1)
+                {
+                    if(nodoAct.fil == inicio->fil && nodoAct.col == inicio->col)
+                    {
+                        codigoDeError = pilaApilar(&camino, inicio, sizeof(tInfoNodo));
+                    }
+                    else
+                    {
+                        codigoDeError = -7;
+                    }
+                }
+                else
+                {
+                    listaRemoverPorPos(&closedSet, &nodoAct, sizeof(tInfoNodo), pos);
+                    codigoDeError = pilaApilar(&camino, &nodoAct, sizeof(tInfoNodo));
+                }
+            }
+
+            while(codigoDeError == TODO_OK && pilaDesapilar(&camino, &nodoAct, sizeof(tInfoNodo)) == TODO_OK) // Reconstruimos el camino
+            {
+                codigoDeError = colaEncolar(movimientos, &nodoAct, sizeof(tInfoNodo));
+            }
         }
         else // Si no llegamos a la meta, seguimos
         {
@@ -122,18 +154,17 @@ int aStarBusqueda(char matriz[][COL], int cf, int cc, const tInfoNodo* inicio, c
                     {
                         if(listaBuscarPorClave(&closedSet, &nodoVecino, cmpPos) == -1 && matriz[nodoVecino.fil][nodoVecino.col] != '#')
                         {
-                            tentativoG = nodoAct.costoG + 1;
-
                             // Actualizamos los valores
-                            nodoVecino.costoG = tentativoG;
+                            nodoVecino.costoG = nodoAct.costoG + 1;
                             nodoVecino.costoH = calcularHeuristica(&nodoVecino, meta);
                             nodoVecino.costoF = nodoVecino.costoG + nodoVecino.costoH;
+                            nodoVecino.filPadre = nodoAct.fil;
+                            nodoVecino.colPadre = nodoAct.col;
 
                             pos = listaBuscarPorClave(&openSet, &nodoVecino, cmpPos);
                             if(pos == -1)
                             {
                                 codigoDeError = listaInsertarAlInicio(&openSet, &nodoVecino, sizeof(tInfoNodo));
-                                codigoDeError = colaEncolar(movimientos, &nodoAct, sizeof(tInfoNodo));
                             }
                             else
                             {
@@ -141,7 +172,6 @@ int aStarBusqueda(char matriz[][COL], int cf, int cc, const tInfoNodo* inicio, c
                                 if(nodoVecino.costoG < nodoAux.costoG)
                                 {
                                     codigoDeError = listaInsertarAlInicio(&openSet, &nodoVecino, sizeof(tInfoNodo));
-                                    codigoDeError = colaEncolar(movimientos, &nodoAct, sizeof(tInfoNodo));
                                 }
                                 else
                                 {
@@ -161,6 +191,7 @@ int aStarBusqueda(char matriz[][COL], int cf, int cc, const tInfoNodo* inicio, c
         listaVaciar(&openSet);
         listaVaciar(&closedSet);
         colaVaciar(&vecinos);
+        pilaVaciar(&camino);
         return SIN_MEM;
     }
 
@@ -170,12 +201,14 @@ int aStarBusqueda(char matriz[][COL], int cf, int cc, const tInfoNodo* inicio, c
         listaVaciar(&openSet);
         listaVaciar(&closedSet);
         colaVaciar(&vecinos);
+        pilaVaciar(&camino);
         return NO_ENCONTRADO;
     }
 
     listaVaciar(&openSet);
     listaVaciar(&closedSet);
     colaVaciar(&vecinos);
+    pilaVaciar(&camino);
     return TODO_OK;
 }
 
@@ -245,7 +278,7 @@ int main()
     char matriz[21][COL] =
     {
         "###################",
-        "#        # J      #",
+        "#   J    #        #",
         "# ## ### # ### ## #",
         "#                 #",
         "# ## # ##### # ## #",
@@ -267,31 +300,47 @@ int main()
         "###################"
     };
     tCola movimientos;
-    tInfoNodo f = {19, 17, 0, 0, 0}, j = {1, 11, 0, 0, 0}, act;
+//    tInfoNodo f = {19, 17, 0, 0, 0}, j = {1, 11, 0, 0, 0}, act;
+    tInfoNodo f, j, act;
+    char objeto = ' ';
 
+    matrizBuscar(matriz, 'F', &f.fil, &f.col, 21, COL);
+    matrizBuscar(matriz, 'J', &j.fil, &j.col, 21, COL);
+    f.costoG = 0;
+    f.costoH = 0;
+    f.costoF = 0;
+    f.filPadre = -1;
+    f.colPadre = -1;
+    j.costoG = 0;
+    j.costoH = 0;
+    j.costoF = 0;
+    j.filPadre = -1;
+    j.colPadre = -1;
     colaCrear(&movimientos);
 
     if(aStarBusqueda(matriz, 21, COL, &f, &j, &movimientos) == TODO_OK)
     {
         // Pintar camino
-        while(colaDesencolar(&movimientos, &act, sizeof(tInfoNodo)) == TODO_OK)
-        {
-            limpiarConsola();
-            matrizRemplazarCaracterEnPosicion(matriz, 'C', act.fil, act.col, 21, COL);
-            matrizMostrar(matriz, 21, COL);
-            Sleep(10);
-        }
-
-        // Mover fantasma
 //        while(colaDesencolar(&movimientos, &act, sizeof(tInfoNodo)) == TODO_OK)
 //        {
 //            limpiarConsola();
-//            matrizRemplazarCaracterEnPosicion(matriz, ' ', f.fil, f.col, 21, COL);
-//            matrizRemplazarCaracterEnPosicion(matriz, 'F', act.fil, act.col, 21, COL);
+//            matrizRemplazarCaracterEnPosicion(matriz, 'C', act.fil, act.col, 21, COL);
 //            matrizMostrar(matriz, 21, COL);
-//            Sleep(50);
-//            f = act;
+//            Sleep(10);
 //        }
+
+        // Mover fantasma
+        while(colaDesencolar(&movimientos, &act, sizeof(tInfoNodo)) == TODO_OK)
+        {
+            limpiarConsola();
+            matrizRemplazarCaracterEnPosicion(matriz, objeto, f.fil, f.col, 21, COL);
+            objeto = matriz[act.fil][act.col];
+            matrizRemplazarCaracterEnPosicion(matriz, 'F', act.fil, act.col, 21, COL);
+
+            matrizMostrar(matriz, 21, COL);
+            Sleep(150);
+            f = act;
+        }
     }
 
     colaVaciar(&movimientos);

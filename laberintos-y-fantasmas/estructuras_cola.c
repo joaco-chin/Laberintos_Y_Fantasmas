@@ -1,4 +1,5 @@
 #include "estructuras_cola.h"
+#include "codigosRet.h"
 #include <stdlib.h>
 #include <string.h>
 #include "generico.h"
@@ -20,12 +21,12 @@ int colaEncolar(tCola* pc, const void* info, unsigned tamInfo)
 {
     tNodo* nuevo = (tNodo*)malloc(sizeof(tNodo));
     if(!nuevo)
-        return -1;
+        return SIN_MEM;
     nuevo->info = malloc(tamInfo);
     if(!nuevo->info)
     {
         free(nuevo);
-        return -1;
+        return SIN_MEM;
     }
 
     memcpy(nuevo->info, info, tamInfo);
@@ -39,7 +40,7 @@ int colaEncolar(tCola* pc, const void* info, unsigned tamInfo)
 
     pc->ult = nuevo;
 
-    return 0;
+    return TODO_OK;
 }
 
 int colaDesencolar(tCola* pc, void* info, unsigned tamInfo)
@@ -59,7 +60,7 @@ int colaDesencolar(tCola* pc, void* info, unsigned tamInfo)
     if(pc->pri == NULL)
         pc->ult = NULL;
 
-    return 0;
+    return TODO_OK;
 }
 
 void colaVaciar(tCola* pc)

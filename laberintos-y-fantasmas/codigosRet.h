@@ -6,4 +6,6 @@
 #define SIN_MEM -2
 #define ERR_LINEA_LARGA -3
 
+#define NO_ENCONTRADO -1
+
 #endif // CODIGOSRET_H_INCLUDED

@@ -1,4 +1,5 @@
 #include "estructuras_pila.h"
+#include "codigosRet.h"
 #include <stdlib.h>
 #include <string.h>
 #include "generico.h"
@@ -19,12 +20,12 @@ int pilaApilar(tPila* pp, const void* info, unsigned tamInfo)
 {
     tNodo* nuevo = (tNodo*)malloc(sizeof(tNodo));
     if(!nuevo)
-        return -1;
+        return SIN_MEM;
     nuevo->info = malloc(tamInfo);
     if(!nuevo->info)
     {
         free(nuevo);
-        return -1;
+        return SIN_MEM;
     }
 
     memcpy(nuevo->info, info, tamInfo);
@@ -33,7 +34,7 @@ int pilaApilar(tPila* pp, const void* info, unsigned tamInfo)
 
     *pp =nuevo;
 
-    return 0;
+    return TODO_OK;
 }
 
 int pilaDesapilar(tPila* pp, void* info, unsigned tamInfo)
@@ -49,7 +50,7 @@ int pilaDesapilar(tPila* pp, void* info, unsigned tamInfo)
 
     free(elim->info);
     free(elim);
-    return 0;
+    return TODO_OK;
 }
 
 void pilaVaciar(tPila* pp)

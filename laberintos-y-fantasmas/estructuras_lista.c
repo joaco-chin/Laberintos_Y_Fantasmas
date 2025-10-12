@@ -1,4 +1,5 @@
 #include "estructuras_lista.h"
+#include "codigosRet.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -18,12 +19,12 @@ int listaInsertarAlInicio(tLista* pl, const void* info, unsigned tamInfo)
 {
     tNodo* nuevo = (tNodo*)malloc(sizeof(tNodo));
     if(!nuevo)
-        return -1;
+        return SIN_MEM;
     nuevo->info = malloc(tamInfo);
     if(!nuevo->info)
     {
         free(nuevo);
-        return -1;
+        return SIN_MEM;
     }
 
     memcpy(nuevo->info, info, tamInfo);
@@ -31,7 +32,7 @@ int listaInsertarAlInicio(tLista* pl, const void* info, unsigned tamInfo)
 
     nuevo->sig = *pl;
     *pl = nuevo;
-    return 0;
+    return TODO_OK;
 }
 
 int listaBuscarMenor(const tLista* pl, Cmp cmpNodos)
@@ -70,7 +71,7 @@ int listaBuscarPorClave(const tLista* pl, void* clave, Cmp cmpNodos)
     }
 
     if(cmp != 0)
-        return -1;
+        return NO_ENCONTRADO;
     return pos;
 }
 
@@ -91,7 +92,7 @@ int listaRemoverPorPos(tLista* pl, void* info, unsigned tamInfo, int pos)
     }
 
     if(posAct != pos)
-        return -1;
+        return NO_ENCONTRADO;
 
     elim = *pl;
     memcpy(info, elim->info, MIN(elim->tamInfo, tamInfo));
@@ -101,7 +102,7 @@ int listaRemoverPorPos(tLista* pl, void* info, unsigned tamInfo, int pos)
 
     free(elim->info);
     free(elim);
-    return 0;
+    return TODO_OK;
 }
 
 void listaRecorrer_TEST(const tLista* pl, Accion imp)
