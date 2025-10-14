@@ -6,3 +6,5 @@
 **/testeoAstar.layout
 **/config.txt
 **/laberinto.txt
+**/*.exe
+**/.vscode/
