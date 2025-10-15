@@ -27,6 +27,6 @@ typedef struct
 
 void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna);
 void actualizarPuntosYVidas(tJugador *jug, char celda);
-void matrizActualizarPorEstadoDeVidas(char **matriz, tJugador *jug, tConfig *conf, int filaEntrada, int columnaEntrada, char *tecla);
+int matrizActualizarPorEstadoDeVidas(char **matriz, tJugador *jug, tConfig *conf, int filaEntrada, int columnaEntrada);
 
 #endif // JUGADOR_H_INCLUDED

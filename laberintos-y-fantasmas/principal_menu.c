@@ -10,11 +10,11 @@ int menu()
     int pos = 0;
     char tecla;
     char matPantalla[CANT_OPCIONES][TAM_PAL] =
-        {
-            "-> Nueva Partida",
-            "   Ver Ranking",
-            "   Salir",
-        };
+    {
+        "-> Nueva Partida",
+        "   Ver Ranking",
+        "   Salir",
+    };
 
     puts("******LABERINTOS Y FANTASMAS******");
     putchar('\n');
@@ -33,7 +33,7 @@ int menu()
         limpiarConsola();
 
         if (tecla == ABAJO || tecla == ARRIBA)
-            actualizarMenu(matPantalla, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
+            actualizarMenu(matPantalla, CANT_OPCIONES, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
 
         mostrarMenu(matPantalla, CANT_OPCIONES);
 
@@ -57,11 +57,86 @@ int menu()
     return SALIR;
 }
 
-void actualizarMenu(char matriz[CANT_OPCIONES][TAM_PAL], int *posAct, int posNueva)
+int menuDePausa()
+{
+    int pos = 0;
+    char tecla;
+    char matrizPantalla[CANT_OPCIONES_PAUSA][TAM_PAL] =
+    {
+        "-> Volver al juego",
+        "   Salir al menu principal"
+    };
+    int salida = REANUDAR;
+
+    limpiarConsola();
+    puts("*PAUSA*");
+    mostrarMenu(matrizPantalla, CANT_OPCIONES_PAUSA);
+    tecla = getch();
+    while(salida == REANUDAR && !(tecla == ESC || (pos == 0 && tecla == ENTER)))
+    {
+        if(pos == 1 && tecla == ENTER)
+        {
+            salida = menuDeConfirmacion();
+        }
+
+        else if(tecla == ABAJO || tecla == ARRIBA)
+        {
+            actualizarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
+        }
+
+        if(salida == REANUDAR)
+        {
+            limpiarConsola();
+            puts("*PAUSA*");
+            mostrarMenu(matrizPantalla, CANT_OPCIONES_PAUSA);
+            tecla = getch();
+        }
+    }
+
+    return salida;
+}
+
+int menuDeConfirmacion()
+{
+    int pos = 0;
+    char tecla;
+    char matrizPantalla[CANT_OPCIONES_CONFIRMACION][TAM_PAL] =
+    {
+        "-> No",
+        "   Si"
+    };
+
+    limpiarConsola();
+    puts("Seguro que desea salir? Su partida se tomara como perdida");
+    mostrarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION);
+    tecla = getch();
+
+    while(tecla != ESC && tecla != ENTER)
+    {
+        if(tecla == ABAJO || tecla == ARRIBA)
+        {
+            actualizarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
+        }
+
+        limpiarConsola();
+        puts("Seguro que desea salir? Su partida se tomara como perdida");
+        mostrarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION);
+        tecla = getch();
+    }
+
+    if(tecla == ESC || (pos == 0 && tecla == ENTER))
+    {
+        return REANUDAR;
+    }
+
+    return TERMINAR;
+}
+
+void actualizarMenu(char matriz[][TAM_PAL], int cf, int *posAct, int posNueva)
 {
     int j = 0;
 
-    if (posNueva >= 0 && posNueva < CANT_OPCIONES)
+    if (posNueva >= 0 && posNueva < cf)
     {
         while (matriz[*posAct][j] != ' ')
         {
@@ -76,7 +151,7 @@ void actualizarMenu(char matriz[CANT_OPCIONES][TAM_PAL], int *posAct, int posNue
     }
 }
 
-void mostrarMenu(char matriz[CANT_OPCIONES][TAM_PAL], int filas)
+void mostrarMenu(char matriz[][TAM_PAL], int filas)
 {
     int i;
 
@@ -103,11 +178,11 @@ void limpiarConsola() // lo mismo que poner system("cls");
     cellCount = csbi.dwSize.X * csbi.dwSize.Y;
 
     if (!FillConsoleOutputCharacter(
-            hConsole,
-            (TCHAR)' ',
-            cellCount,
-            homeCoords,
-            &count))
+                hConsole,
+                (TCHAR)' ',
+                cellCount,
+                homeCoords,
+                &count))
         return;
 
     SetConsoleCursorPosition(hConsole, homeCoords);

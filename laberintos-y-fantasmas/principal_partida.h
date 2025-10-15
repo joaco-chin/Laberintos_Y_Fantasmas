@@ -8,10 +8,6 @@
 #define PARTIDA_GANADA 1
 #define PARTIDA_PERDIDA 0
 
-#define CANT_F 4
-#define CANT_P 3
-#define CANT_V 2
-
 int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente);
 int partida(SOCKET sockCliente);
 void verRanking(SOCKET sockCliente);

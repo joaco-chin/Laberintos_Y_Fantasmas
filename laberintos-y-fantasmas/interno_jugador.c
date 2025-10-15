@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "interno_matriz.h"
+#include "principal_menu.h"
 
 void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna)
 {
@@ -31,7 +32,7 @@ void actualizarPuntosYVidas(tJugador *jug, char celda)
         jug->vidas--;
 }
 
-void matrizActualizarPorEstadoDeVidas(char **matriz, tJugador *jug, tConfig *conf, int filaEntrada, int columnaEntrada, char *tecla)
+int matrizActualizarPorEstadoDeVidas(char **matriz, tJugador *jug, tConfig *conf, int filaEntrada, int columnaEntrada)
 {
     if (jug->vidas < conf->vidasInicio)
     {
@@ -47,6 +48,8 @@ void matrizActualizarPorEstadoDeVidas(char **matriz, tJugador *jug, tConfig *con
     else if (jug->vidas <= 0)
     {
         printf("\n\nGame Over!\n");
-        *tecla = ESC;
+        return TERMINAR;
     }
+
+    return REANUDAR;
 }
