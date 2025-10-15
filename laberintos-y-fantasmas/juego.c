@@ -3,9 +3,12 @@
 #include <stdlib.h>
 #include "principal_menu.h"
 #include "principal_partida.h"
+#include "interno_cliente.h"
 
 void juego()
 {
+    SOCKET sock = clienteConectarAlServidor();
+
     int opcion;
 
     while ((opcion = menu()) != SALIR)
@@ -13,12 +16,14 @@ void juego()
         switch (opcion)
         {
         case NUEVA_PARTIDA:
-            partida();
+            partida(sock);
             break;
 
         case VER_RANKING:
-            printf("RANKING:\n");
+            verRanking(sock);
             break;
         }
     }
+
+    cerrarConexion(sock);
 }

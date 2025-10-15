@@ -8,7 +8,7 @@
 #include "principal_menu.h"
 #include "interno_laberinto.h"
 
-int partida()
+int partida(SOCKET sockCliente)
 {
     tConfig conf;
     char linea[TAM_LINEA_CONF];
@@ -30,20 +30,13 @@ int partida()
         return SIN_MEM;
     }
 
-    // crearLaberintoEnTxt()-> conf: contiene filas, columnas, maxNumFantasmas, maxNumPremios, maxVidasExtra REALES generados en el laberinto
+    // generarLaberintoAleatorio-> conf: contiene filas, columnas, maxNumFantasmas, maxNumPremios, maxVidasExtra REALES generados en el laberinto
     generarLaberintoAleatorio(matLab, conf.fil, conf.col, &conf.maxNumFantasmas, &conf.maxNumPremios, &conf.maxVidasExtra);
 
     // guarda la matriz en "laberinto.txt"
     escribirMatrizEnArchivoTxt(matLab, "laberinto.txt", conf.fil, conf.col);
 
-    // // inicializa la matriz desde "laberinto.txt" -> no creo que sea necesario si se genera y luego se escribe, se trabaja con el que ya se genero
-    // if ((codigoDeError = matrizInicializarDeArchivoTxt(matLab, "laberinto.txt", conf.fil, conf.col + 1)) != TODO_OK)
-    // {
-    //     matrizDestruir((void **)matLab, conf.fil);
-    //     return codigoDeError;
-    // }
-
-    codigoDeError = loopPartida(matLab, &conf);
+    codigoDeError = loopPartida(matLab, &conf, sockCliente);
     if (codigoDeError != TODO_OK)
     {
         matrizDestruir((void **)matLab, conf.fil);
@@ -54,7 +47,7 @@ int partida()
     return TODO_OK;
 }
 
-int loopPartida(char **matriz, tConfig *conf)
+int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente)
 {
     tJugador jug;
     int filaEntrada, columnaEntrada;
@@ -100,5 +93,40 @@ int loopPartida(char **matriz, tConfig *conf)
     if (tecla == ESC)
         return PARTIDA_PERDIDA;
 
+    // ya se tiene puntaje, contar cant de movimientos del jugador que se guardaron en la cola
+    int cantMovimientos = 0;
+    printf("Partida ganada! Puntos: %d, Movimientos: %d\n", jug.puntos, cantMovimientos);
+
+    if (sockCliente != INVALID_SOCKET)
+    {
+        char mensaje[BUFFER_SIZE];
+        sprintf(mensaje, "GUARDAR_PUNTUACION|%d|%d", jug.puntos, cantMovimientos);
+        char respuesta[BUFFER_SIZE];
+        if (enviarPeticion(sockCliente, mensaje, respuesta) == 0)
+            printf("[Servidor]: %s\n", respuesta);
+        else
+            printf("Error al enviar o recibir datos del servidor.\n");
+    }
+    else
+    {
+        printf("No se pudo guardar la puntuacion, no hay conexion con el servidor.\n");
+    }
+
     return PARTIDA_GANADA;
+}
+
+void verRanking(SOCKET sockCliente)
+{
+    if (sockCliente != INVALID_SOCKET)
+    {
+        char respuesta[BUFFER_SIZE];
+        if (enviarPeticion(sockCliente, "VER_RANKING", respuesta) == 0)
+            printf("[Servidor]: %s\n", respuesta);
+        else
+            printf("Error al enviar o recibir datos del servidor.\n");
+    }
+    else
+    {
+        printf("No se puede ver el ranking, no hay conexion con el servidor.\n");
+    }
 }
