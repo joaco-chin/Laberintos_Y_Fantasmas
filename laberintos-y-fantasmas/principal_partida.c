@@ -37,6 +37,7 @@ int partida(SOCKET sockCliente)
     escribirMatrizEnArchivoTxt(matLab, "laberinto.txt", conf.fil, conf.col);
 
     codigoDeError = loopPartida(matLab, &conf, sockCliente);
+
     if (codigoDeError != TODO_OK)
     {
         matrizDestruir((void **)matLab, conf.fil);
@@ -53,10 +54,7 @@ int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente)
     int filaEntrada, columnaEntrada;
     int filaSalida, columnaSalida;
     char tecla;
-    //    tTile* fantasmas = malloc(CANT_F * sizeof(tTile)); // Reemplazar CANT_F por la variable contadora que debe enviarse por parametro despues de crear el laberinto
-    //    tTile* puntos = malloc(CANT_P * sizeof(tTile)); // Reemplazar CANT_P por la variable contadora que debe enviarse por parametro despues de crear el laberinto
-    //    tTile* vidas = malloc(CANT_V * sizeof(tTile)); // Reemplazar CANT_V por la variable contadora que debe enviarse por parametro despues de crear el laberinto
-    //    tCola movimientos;
+    int salida = REANUDAR;
 
     jug.vidas = conf->vidasInicio;
     jug.puntos = 0;
@@ -71,26 +69,37 @@ int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente)
     matrizRemplazarCaracterEnPosicion(matriz, 'J', jug.posFil, jug.posCol, conf->fil, conf->col);
 
     tecla = getch();
-    while (tecla != ESC && matriz[jug.posFil][jug.posCol] != matriz[filaSalida][columnaSalida])
+    while (salida != TERMINAR && matriz[jug.posFil][jug.posCol] != matriz[filaSalida][columnaSalida])
     {
         limpiarConsola();
         printf("Vidas: %d\n", jug.vidas);
         printf("Puntos: %d\n", jug.puntos);
 
-        if ((tecla == ABAJO || tecla == ARRIBA || tecla == IZQUIERDA || tecla == DERECHA))
-            matrizActualizarPosicionDeJugador(matriz, conf->fil, conf->col, &jug, jug.posFil + (tecla == ABAJO) - (tecla == ARRIBA), jug.posCol + (tecla == DERECHA) - (tecla == IZQUIERDA));
+        if(tecla != ESC)
+        {
+            if ((tecla == ABAJO || tecla == ARRIBA || tecla == IZQUIERDA || tecla == DERECHA))
+                matrizActualizarPosicionDeJugador(matriz, conf->fil, conf->col, &jug, jug.posFil + (tecla == ABAJO) - (tecla == ARRIBA), jug.posCol + (tecla == DERECHA) - (tecla == IZQUIERDA));
 
-        matrizMostrar(matriz, conf->fil, conf->col);
+            matrizMostrar(matriz, conf->fil, conf->col);
 
-        matrizActualizarPorEstadoDeVidas(matriz, &jug, conf, filaEntrada, columnaEntrada, &tecla);
+            salida = matrizActualizarPorEstadoDeVidas(matriz, &jug, conf, filaEntrada, columnaEntrada);
+        }
+        else
+        {
+            salida = menuDePausa();
+            limpiarConsola();
+            printf("Vidas: %d\n", jug.vidas);
+            printf("Puntos: %d\n", jug.puntos);
+            matrizMostrar(matriz, conf->fil, conf->col);
+        }
 
         // poner un timer si no se preciona tecla durante cierto tiempo pasa un ciclo y se mueven los fantasmas con el jugador quieto
-        if (tecla != ESC)
+        if(salida != TERMINAR)
             tecla = getch();
     }
     limpiarConsola();
 
-    if (tecla == ESC)
+    if (salida == TERMINAR)
         return PARTIDA_PERDIDA;
 
     // ya se tiene puntaje, contar cant de movimientos del jugador que se guardaron en la cola
@@ -112,6 +121,7 @@ int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente)
         printf("No se pudo guardar la puntuacion, no hay conexion con el servidor.\n");
     }
 
+//    limpiarConsola();
     return PARTIDA_GANADA;
 }
 
@@ -129,4 +139,5 @@ void verRanking(SOCKET sockCliente)
     {
         printf("No se puede ver el ranking, no hay conexion con el servidor.\n");
     }
+    limpiarConsola();
 }
