@@ -36,13 +36,6 @@ int partida()
     // guarda la matriz en "laberinto.txt"
     escribirMatrizEnArchivoTxt(matLab, "laberinto.txt", conf.fil, conf.col);
 
-    // // inicializa la matriz desde "laberinto.txt" -> no creo que sea necesario si se genera y luego se escribe, se trabaja con el que ya se genero
-    // if ((codigoDeError = matrizInicializarDeArchivoTxt(matLab, "laberinto.txt", conf.fil, conf.col + 1)) != TODO_OK)
-    // {
-    //     matrizDestruir((void **)matLab, conf.fil);
-    //     return codigoDeError;
-    // }
-
     codigoDeError = loopPartida(matLab, &conf);
     if (codigoDeError != TODO_OK)
     {
@@ -60,10 +53,12 @@ int loopPartida(char **matriz, tConfig *conf)
     int filaEntrada, columnaEntrada;
     int filaSalida, columnaSalida;
     char tecla;
-    //    tTile* fantasmas = malloc(CANT_F * sizeof(tTile)); // Reemplazar CANT_F por la variable contadora que debe enviarse por parametro despues de crear el laberinto
-    //    tTile* puntos = malloc(CANT_P * sizeof(tTile)); // Reemplazar CANT_P por la variable contadora que debe enviarse por parametro despues de crear el laberinto
-    //    tTile* vidas = malloc(CANT_V * sizeof(tTile)); // Reemplazar CANT_V por la variable contadora que debe enviarse por parametro despues de crear el laberinto
-    //    tCola movimientos;
+    tFantasma* fantasmas = malloc(conf->maxNumFantasmas * sizeof(tFantasma));
+    int cantFantasmas = conf->maxNumFantasmas;
+    if(!fantasmas)
+    {
+        return SIN_MEM;
+    }
 
     jug.vidas = conf->vidasInicio;
     jug.puntos = 0;
