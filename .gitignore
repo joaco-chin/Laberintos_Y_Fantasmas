@@ -1,9 +1,7 @@
 **/bin/
 **/obj/
-**/laberintos-y-fantasmas.depend
-**/laberintos-y-fantasmas.layout
-**/testeoAstar.depend
-**/testeoAstar.layout
+**/*.depend
+**/*.layout
 **/config.txt
 **/laberinto.txt
 **/*.exe
