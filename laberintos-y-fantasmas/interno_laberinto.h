@@ -10,6 +10,7 @@
 #include "codigosRet.h"
 #include "generico.h"
 #include "estructuras_lista.h"
+#include "estructuras_cola.h"
 
 // poner esto en codigosRet.h??
 #define VERDADERO 1
@@ -43,7 +44,7 @@ typedef struct
 tPosicion elegirYEliminarPosicionLista(tLista *lista, int *cantidad);
 int llenarListaPosicionesLibresParedes(char **matriz, int filas, int columnas, tLista *lista);
 int llenarListaPosicionesLibres(char **matriz, int filas, int columnas, tLista *lista);
-int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int columnas, char caracter, int cantidadCar);
+int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int columnas, char caracter, int cantidadCar, tCola* colaFantasmas);
 void generarEntradaYSalida(char **matriz, int filas, int columnas, tPosicion *posEnt, tPosicion *posSal);
 void evitarObstrucciones(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal, int maxBloquesPorPared);
 void colocarCaracterEnEsquinasDePosicion(char **matriz, int filas, int columnas, tPosicion pos, char caracter);
@@ -53,8 +54,8 @@ void colocarParedTemporalEnPosicion(char **matriz, int filas, int columnas, tPos
 int hayCaracterAlrededorDePosicion(char **matriz, int filas, int columnas, int i, int j, char objetivo);
 void generarParedesInternas(char **matriz, int filas, int columnas, int maxBloquesPorPared);
 void generarParedesLimite(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal);
-void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra);
-void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra);
+void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tCola* colaFantasmas);
+void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tCola* colaFantasmas);
 
 // funciones para poner en matriz.c
 void inicializarMatrizCaracter(char **matriz, int filas, int columnas, char caracter);

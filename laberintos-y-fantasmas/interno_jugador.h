@@ -11,22 +11,18 @@
 #define ESC 27
 #define ENTER 13
 
+#define JUGADOR 'J'
+
 typedef struct
 {
     int posFil;
     int posCol;
-    /*
-    int posFilEnt;  Para hacer mas eficiente el codigo
-    int posColEnt;  No fueron reemplazadas todavia
-    int posFilSal;
-    int posColSal;
-    */
     int vidas;
     int puntos;
 } tJugador;
 
+char ingresarTeclaDeJugador(unsigned periodo);
 void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna);
 void actualizarPuntosYVidas(tJugador *jug, char celda);
-int matrizActualizarPorEstadoDeVidas(char **matriz, tJugador *jug, tConfig *conf, int filaEntrada, int columnaEntrada);
 
 #endif // JUGADOR_H_INCLUDED
