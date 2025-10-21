@@ -1,5 +1,4 @@
 #include "estructuras_lista.h"
-#include "codigosRet.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -19,38 +18,8 @@ int listaInsertarAlInicio(tLista* pl, const void* info, unsigned tamInfo)
 {
     tNodo* nuevo = (tNodo*)malloc(sizeof(tNodo));
     if(!nuevo)
-        return SIN_MEM;
-    nuevo->info = malloc(tamInfo);
-    if(!nuevo->info)
-    {
-        free(nuevo);
-        return SIN_MEM;
-    }
-
-    memcpy(nuevo->info, info, tamInfo);
-    nuevo->tamInfo = tamInfo;
-
-    nuevo->sig = *pl;
-    *pl = nuevo;
-    return TODO_OK;
-}
-
-int listaInsertarOrdenado(tLista* pl, const void* info, unsigned tamInfo, Cmp cmpNodos)
-{
-    tNodo* nuevo;
-    int compInfoElem = 1;
-
-    while(*pl && (compInfoElem = cmpNodos(info, (*pl)->info)) > 0)
-    {
-        pl = &(*pl)->sig;
-    }
-
-    nuevo = (tNodo*)malloc(sizeof(tNodo));
-    if(!nuevo)
         return -1;
-
     nuevo->info = malloc(tamInfo);
-
     if(!nuevo->info)
     {
         free(nuevo);
@@ -62,7 +31,6 @@ int listaInsertarOrdenado(tLista* pl, const void* info, unsigned tamInfo, Cmp cm
 
     nuevo->sig = *pl;
     *pl = nuevo;
-
     return 0;
 }
 
@@ -102,23 +70,38 @@ int listaBuscarPorClave(const tLista* pl, void* clave, Cmp cmpNodos)
     }
 
     if(cmp != 0)
-        return NO_ENCONTRADO;
+        return -1;
     return pos;
 }
 
-int listaRemoverInicio(tLista* pl, void* info, unsigned tamInfo)
+int listaInsertarOrdenado(tLista* pl, const void* info, unsigned tamInfo, Cmp cmpNodos)
 {
-    tNodo* elim;
+    tNodo* nuevo;
+    int compInfoElem = 1;
 
-    if(*pl == NULL)
-        return LISTA_VACIA;
+    while(*pl && (compInfoElem = cmpNodos(info, (*pl)->info)) > 0)
+    {
+        pl = &(*pl)->sig;
+    }
 
-    elim = *pl;
-    memcpy(info, elim->info, MIN(elim->tamInfo, tamInfo));
+    nuevo = (tNodo*)malloc(sizeof(tNodo));
+    if(!nuevo)
+        return -1;
 
-    *pl = elim->sig;
-    free(elim->info);
-    free(elim);
+    nuevo->info = malloc(tamInfo);
+
+    if(!nuevo->info)
+    {
+        free(nuevo);
+        return -1;
+    }
+
+    memcpy(nuevo->info, info, tamInfo);
+    nuevo->tamInfo = tamInfo;
+
+    nuevo->sig = *pl;
+    *pl = nuevo;
+
     return 0;
 }
 
@@ -139,7 +122,7 @@ int listaRemoverPorPos(tLista* pl, void* info, unsigned tamInfo, int pos)
     }
 
     if(posAct != pos)
-        return NO_ENCONTRADO;
+        return -1;
 
     elim = *pl;
     memcpy(info, elim->info, MIN(elim->tamInfo, tamInfo));
@@ -149,7 +132,23 @@ int listaRemoverPorPos(tLista* pl, void* info, unsigned tamInfo, int pos)
 
     free(elim->info);
     free(elim);
-    return TODO_OK;
+    return 0;
+}
+
+int listaRemoverInicio(tLista* pl, void* info, unsigned tamInfo)
+{
+    tNodo* elim;
+
+    if(*pl == NULL)
+        return LISTA_VACIA;
+
+    elim = *pl;
+    memcpy(info, elim->info, MIN(elim->tamInfo, tamInfo));
+
+    *pl = elim->sig;
+    free(elim->info);
+    free(elim);
+    return 0;
 }
 
 int listaVerPos(const tLista* pl, void* info, unsigned tamInfo, int pos)

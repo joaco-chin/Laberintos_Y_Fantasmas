@@ -1,13 +1,17 @@
 #include "interno_fantasma.h"
+#include "principal_menu.h"
+#include "interno_laberinto.h"
 #include "codigosRet.h"
 #include <math.h>
+#include <stdio.h>
 
-int aStarBusqueda(char** matriz, int cf, int cc, const tInfoNodo* inicio, const tInfoNodo* meta, tCola* movimientos)
+int aStarBusqueda(char** matriz, int cf, int cc, const tFantasma* origen, const tJugador* destino, tCola* movimientos)
 {
     tLista openSet, closedSet;
     tCola vecinos;
     tPila camino;
-    tInfoNodo nodoAct = {inicio->fil, inicio->col, 0, 0, 0, -1, -1}, nodoVecino, nodoAux;
+    tInfoNodo nodoAct = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' '}, nodoVecino, nodoAux;
+    tInfoNodo inicio = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' '}, meta = {destino->posFil, destino->posCol, 0, 0, 0, -1, -1};
     int pos;
     int metaAlcanzada = 0;
     int codigoDeError = TODO_OK;
@@ -23,9 +27,8 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tInfoNodo* inicio, const 
         pos = listaBuscarMenor(&openSet, cmpCostos); // Buscamos el nodo con el menor costo F
         listaRemoverPorPos(&openSet, &nodoAct, sizeof(tInfoNodo), pos);
 
-        if(cmpPos(&nodoAct, meta) == 0) // Si llegamos a la meta, salimos
+        if(cmpPos(&nodoAct, &meta) == 0) // Si llegamos a la meta, salimos
         {
-//            puts("Camino encontrado");
             metaAlcanzada = 1;
 
             // Recorremos todos los nodos padres hasta volver al inicio
@@ -38,9 +41,9 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tInfoNodo* inicio, const 
 
                 if(pos == -1)
                 {
-                    if(nodoAct.fil == inicio->fil && nodoAct.col == inicio->col)
+                    if(nodoAct.fil == inicio.fil && nodoAct.col == inicio.col)
                     {
-                        codigoDeError = pilaApilar(&camino, inicio, sizeof(tInfoNodo));
+                        codigoDeError = pilaApilar(&camino, &inicio, sizeof(tInfoNodo));
                     }
                     else
                     {
@@ -54,10 +57,13 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tInfoNodo* inicio, const 
                 }
             }
 
-            while(codigoDeError == TODO_OK && pilaDesapilar(&camino, &nodoAct, sizeof(tInfoNodo)) == TODO_OK) // Reconstruimos el camino
+            pilaDesapilar(&camino, &nodoAct, sizeof(tInfoNodo));
+            if(pilaDesapilar(&camino, &nodoAct, sizeof(tInfoNodo)) == TODO_OK)
             {
+                nodoAct.caracterAnterior = origen->caracterAnterior;
                 codigoDeError = colaEncolar(movimientos, &nodoAct, sizeof(tInfoNodo));
             }
+
         }
         else // Si no llegamos a la meta, seguimos
         {
@@ -67,11 +73,11 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tInfoNodo* inicio, const 
                 {
                     while(codigoDeError == TODO_OK && colaDesencolar(&vecinos, &nodoVecino, sizeof(tInfoNodo)) == TODO_OK)
                     {
-                        if(listaBuscarPorClave(&closedSet, &nodoVecino, cmpPos) == -1 && matriz[nodoVecino.fil][nodoVecino.col] != '#')
+                        if(listaBuscarPorClave(&closedSet, &nodoVecino, cmpPos) == -1 && matriz[nodoVecino.fil][nodoVecino.col] != PARED)
                         {
                             // Actualizamos los valores
                             nodoVecino.costoG = nodoAct.costoG + 1;
-                            nodoVecino.costoH = calcularHeuristica(&nodoVecino, meta);
+                            nodoVecino.costoH = calcularHeuristica(&nodoVecino, &meta);
                             nodoVecino.costoF = nodoVecino.costoG + nodoVecino.costoH;
                             nodoVecino.filPadre = nodoAct.fil;
                             nodoVecino.colPadre = nodoAct.col;
@@ -101,47 +107,58 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tInfoNodo* inicio, const 
 
     }
 
-    if(codigoDeError != TODO_OK)
-    {
-        listaVaciar(&openSet);
-        listaVaciar(&closedSet);
-        colaVaciar(&vecinos);
-        pilaVaciar(&camino);
-        return SIN_MEM;
-    }
-
-    if(metaAlcanzada != 1)
-    {
-//        puts("No existe un camino posible");
-        listaVaciar(&openSet);
-        listaVaciar(&closedSet);
-        colaVaciar(&vecinos);
-        pilaVaciar(&camino);
-        return NO_EXISTE_CAMINO;
-    }
-
     listaVaciar(&openSet);
     listaVaciar(&closedSet);
     colaVaciar(&vecinos);
     pilaVaciar(&camino);
+
+    if(codigoDeError != TODO_OK)
+        return codigoDeError;
+    if(metaAlcanzada != 1)
+        return NO_ENCONTRADO;
     return TODO_OK;
 }
 
-//int calcularMovimientosFantasmas(char** matriz, int cf, int cc, tFantasma* fantasma, int ce, tJugador* jugador, tCola* movimientosTotales)
-//{
-//    tCola movimientos;
-//    tFantasma* i = fantasma;
-//    tFantasma* ult = fantasma + ce;
-//
-//    while(i < ult)
-//    {
-//
-//
-//        i++;
-//    }
-//
-//    return TODO_OK;
-//}
+void calcularMovimientosFantasmas(char** matriz, int cf, int cc, tCola* colaFantasmas, const tJugador* jugador, tCola* movimientos)
+{
+    tFantasma fantasma;
+
+    while(colaDesencolar(colaFantasmas, &fantasma, sizeof(tFantasma)) == TODO_OK)
+    {
+        aStarBusqueda(matriz, cf, cc, &fantasma, jugador, movimientos);
+    }
+}
+
+void actualizarPosicionesFantasmas(char** matriz, int cf, int cc, tCola* colaFantasmas, tJugador* jugador, tCola* movimientos)
+{
+    tFantasma fantasma;
+    tInfoNodo movFantasma;
+    int jugadorEncontrado = 0;
+
+    while(colaDesencolar(movimientos, &movFantasma, sizeof(tInfoNodo)) == TODO_OK)
+    {
+        matrizRemplazarCaracterEnPosicion(matriz, movFantasma.caracterAnterior, movFantasma.filPadre, movFantasma.colPadre, cf, cc);
+
+        fantasma.fil = movFantasma.fil;
+        fantasma.col = movFantasma.col;
+
+        if(matriz[movFantasma.fil][movFantasma.col] != FANTASMA)
+            fantasma.caracterAnterior = matriz[movFantasma.fil][movFantasma.col];
+
+        if(matriz[movFantasma.fil][movFantasma.col] == JUGADOR)
+        {
+            jugadorEncontrado = 1;
+        }
+
+        matrizRemplazarCaracterEnPosicion(matriz, FANTASMA, fantasma.fil, fantasma.col, cf, cc);
+        colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
+    }
+
+    if(jugadorEncontrado == 1)
+    {
+        colaVaciar(movimientos);
+    }
+}
 
 int calcularHeuristica(const tInfoNodo* inicio, const tInfoNodo* meta)
 {
@@ -183,20 +200,33 @@ int buscarVecinos(int cf, int cc, const tInfoNodo* nodoAct, tCola* plVecinos) //
 
 int cmpCostos(const void* a, const void* b)
 {
-    const tInfoNodo* nodo1 = a;
-    const tInfoNodo* nodo2 = b;
-    return nodo1->costoF - nodo2->costoF;
+    const tInfoNodo* nodo_1 = a;
+    const tInfoNodo* nodo_2 = b;
+    return nodo_1->costoF - nodo_2->costoF;
 }
 
 int cmpPos(const void* a, const void* b)
 {
-    const tInfoNodo* nodo1 = a;
-    const tInfoNodo* nodo2 = b;
-    int resultado = nodo1->fil - nodo2->fil;
+    const tInfoNodo* nodo_1 = a;
+    const tInfoNodo* nodo_2 = b;
+    int resultado = nodo_1->fil - nodo_2->fil;
 
     if(resultado != 0)
         return resultado;
 
-    return nodo1->col - nodo2->col;
+    return nodo_1->col - nodo_2->col;
 }
+
+int cmpPosFan(const void* a, const void* b)
+{
+    const tFantasma* fantasma_1 = a;
+    const tFantasma* fantasma_2 = b;
+    int resultado = fantasma_1->fil - fantasma_2->fil;
+
+    if(resultado != 0)
+        return resultado;
+
+    return fantasma_1->col - fantasma_2->col;
+}
+
 
