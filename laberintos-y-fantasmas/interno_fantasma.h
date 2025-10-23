@@ -23,6 +23,7 @@ typedef struct
     int filPadre;
     int colPadre;
     char caracterAnterior;
+    tPosicion posInicial;
 }tInfoNodo;
 
 typedef struct
