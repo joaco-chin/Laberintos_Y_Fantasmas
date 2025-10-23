@@ -10,8 +10,8 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tFantasma* origen, const 
     tLista openSet, closedSet;
     tCola vecinos;
     tPila camino;
-    tInfoNodo nodoAct = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' '}, nodoVecino, nodoAux;
-    tInfoNodo inicio = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' '}, meta = {destino->posFil, destino->posCol, 0, 0, 0, -1, -1};
+    tInfoNodo nodoAct = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' ', origen->posInicial}, nodoVecino, nodoAux;
+    tInfoNodo inicio = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' ', origen->posInicial}, meta = {destino->posFil, destino->posCol, 0, 0, 0, -1, -1};
     int pos;
     int metaAlcanzada = 0;
     int codigoDeError = TODO_OK;
@@ -61,6 +61,7 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tFantasma* origen, const 
             if(pilaDesapilar(&camino, &nodoAct, sizeof(tInfoNodo)) == TODO_OK)
             {
                 nodoAct.caracterAnterior = origen->caracterAnterior;
+                nodoAct.posInicial = origen->posInicial;
                 codigoDeError = colaEncolar(movimientos, &nodoAct, sizeof(tInfoNodo));
             }
 
@@ -133,7 +134,6 @@ void actualizarPosicionesFantasmas(char** matriz, int cf, int cc, tCola* colaFan
 {
     tFantasma fantasma;
     tInfoNodo movFantasma;
-    int jugadorEncontrado = 0;
 
     while(colaDesencolar(movimientos, &movFantasma, sizeof(tInfoNodo)) == TODO_OK)
     {
@@ -141,22 +141,13 @@ void actualizarPosicionesFantasmas(char** matriz, int cf, int cc, tCola* colaFan
 
         fantasma.fil = movFantasma.fil;
         fantasma.col = movFantasma.col;
+        fantasma.posInicial = movFantasma.posInicial;
 
-        if(matriz[movFantasma.fil][movFantasma.col] != FANTASMA)
+        if(matriz[movFantasma.fil][movFantasma.col] != FANTASMA && matriz[movFantasma.fil][movFantasma.col] != JUGADOR)
             fantasma.caracterAnterior = matriz[movFantasma.fil][movFantasma.col];
-
-        if(matriz[movFantasma.fil][movFantasma.col] == JUGADOR)
-        {
-            jugadorEncontrado = 1;
-        }
 
         matrizRemplazarCaracterEnPosicion(matriz, FANTASMA, fantasma.fil, fantasma.col, cf, cc);
         colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
-    }
-
-    if(jugadorEncontrado == 1)
-    {
-        colaVaciar(movimientos);
     }
 }
 

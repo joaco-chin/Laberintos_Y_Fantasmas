@@ -225,6 +225,7 @@ int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int column
     int k = 0;
     tFantasma fantasma;
     tLista listaPosLibres;
+    tPosicion p;
     listaCrear(&listaPosLibres);
     int cantLibres = llenarListaPosicionesLibres(matriz, filas, columnas, &listaPosLibres);
     if (cantLibres == 0)
@@ -235,7 +236,7 @@ int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int column
 
     for (k = 0; k < cantidadCar && cantLibres > 0; k++)
     {
-        tPosicion p = elegirYEliminarPosicionLista(&listaPosLibres, &cantLibres);
+        p = elegirYEliminarPosicionLista(&listaPosLibres, &cantLibres);
         matriz[p.fila][p.columna] = caracter;
         if(caracter == FANTASMA)
         {
@@ -246,6 +247,7 @@ int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int column
             fantasma.posInicial.fila = p.fila;
             fantasma.posInicial.columna = p.columna;
             colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
+//            printf("fantasma fil: %d|col: %d\n", fantasma.posInicial.fila, fantasma.posInicial.columna);
         }
     }
     listaVaciarREVISAR(&listaPosLibres);

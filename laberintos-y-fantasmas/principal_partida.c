@@ -91,7 +91,8 @@ int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFan
 
             if ((tecla == ABAJO || tecla == ARRIBA || tecla == IZQUIERDA || tecla == DERECHA))
             {
-                matrizActualizarPosicionDeJugador(matriz, conf->fil, conf->col, &jug, jug.posFil + (tecla == ABAJO) - (tecla == ARRIBA), jug.posCol + (tecla == DERECHA) - (tecla == IZQUIERDA));
+                matrizActualizarPosicionDeJugador(matriz, conf->fil, conf->col, &jug,
+                jug.posFil + (tecla == ABAJO) - (tecla == ARRIBA), jug.posCol + (tecla == DERECHA) - (tecla == IZQUIERDA));
                 colaEncolar(&registro, &jug, sizeof(tJugador));
             }
 
@@ -165,17 +166,22 @@ int matrizActualizarPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaFa
         matriz[jug->posFil][jug->posCol] = JUGADOR;
         conf->vidasInicio = jug->vidas;
 
+//        puts("Fantasmas encolados");
         // Hacemos que los fantasmas retrocedan hacia su posicion inicial
         while(colaDesencolar(colaFantasmas, &fantasma, sizeof(tFantasma)) == TODO_OK)
         {
+//            printf("fantasma: fil:%d|col:%d\n", fantasma.fil, fantasma.col);
+//            printf("pos iniciales: fil:%d|col:%d\n", fantasma.posInicial.fila, fantasma.posInicial.columna);
+            matriz[fantasma.fil][fantasma.col] = fantasma.caracterAnterior;
             fantasma.fil = fantasma.posInicial.fila;
             fantasma.col = fantasma.posInicial.columna;
             fantasma.caracterAnterior = CAMINO;
             colaEncolar(&aux, &fantasma, sizeof(tFantasma));
         }
-
+//        puts("Fantasmas desencolados");
         while(colaDesencolar(&aux, &fantasma, sizeof(tFantasma)) == TODO_OK)
         {
+//            printf("fantasma: fil:%d|col:%d\n", fantasma.fil, fantasma.col);
             colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
         }
     }
