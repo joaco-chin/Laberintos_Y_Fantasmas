@@ -23,14 +23,14 @@ int menu()
     while (tecla != ENTER)
         tecla = getch();
 
-    limpiarConsola();
+    system("cls");
 
     mostrarMenu(matPantalla, CANT_OPCIONES);
 
     while (!(pos == SALIR && tecla == ENTER))
     {
         tecla = getch();
-        limpiarConsola();
+        system("cls");
 
         if (tecla == ABAJO || tecla == ARRIBA)
             actualizarMenu(matPantalla, CANT_OPCIONES, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
@@ -42,13 +42,13 @@ int menu()
             puts("Cargando...");
             if (pos == 0)
             {
-                limpiarConsola();
+                system("cls");
                 return NUEVA_PARTIDA;
             }
 
             else
             {
-                limpiarConsola();
+                system("cls");
                 return VER_RANKING;
             }
         }
@@ -68,7 +68,7 @@ int menuDePausa()
     };
     int salida = REANUDAR;
 
-    limpiarConsola();
+    system("cls");
     puts("*PAUSA*");
     mostrarMenu(matrizPantalla, CANT_OPCIONES_PAUSA);
     tecla = getch();
@@ -86,7 +86,7 @@ int menuDePausa()
 
         if(salida == REANUDAR)
         {
-            limpiarConsola();
+            system("cls");
             puts("*PAUSA*");
             mostrarMenu(matrizPantalla, CANT_OPCIONES_PAUSA);
             tecla = getch();
@@ -106,7 +106,7 @@ int menuDeConfirmacion()
         "   Si"
     };
 
-    limpiarConsola();
+    system("cls");
     puts("Seguro que desea salir? Su partida se tomara como perdida");
     mostrarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION);
     tecla = getch();
@@ -118,7 +118,7 @@ int menuDeConfirmacion()
             actualizarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
         }
 
-        limpiarConsola();
+        system("cls");
         puts("Seguro que desea salir? Su partida se tomara como perdida");
         mostrarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION);
         tecla = getch();
@@ -162,28 +162,28 @@ void mostrarMenu(char matriz[][TAM_PAL], int filas)
     }
 }
 
-void limpiarConsola() // lo mismo que poner system("cls");
-{
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    DWORD count;
-    DWORD cellCount;
-    COORD homeCoords = {0, 0};
-
-    if (hConsole == INVALID_HANDLE_VALUE)
-        return;
-
-    if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
-        return;
-    cellCount = csbi.dwSize.X * csbi.dwSize.Y;
-
-    if (!FillConsoleOutputCharacter(
-                hConsole,
-                (TCHAR)' ',
-                cellCount,
-                homeCoords,
-                &count))
-        return;
-
-    SetConsoleCursorPosition(hConsole, homeCoords);
-}
+//void limpiarConsola() // lo mismo que poner system("cls");
+//{
+//    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+//    CONSOLE_SCREEN_BUFFER_INFO csbi;
+//    DWORD count;
+//    DWORD cellCount;
+//    COORD homeCoords = {0, 0};
+//
+//    if (hConsole == INVALID_HANDLE_VALUE)
+//        return;
+//
+//    if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
+//        return;
+//    cellCount = csbi.dwSize.X * csbi.dwSize.Y;
+//
+//    if (!FillConsoleOutputCharacter(
+//                hConsole,
+//                (TCHAR)' ',
+//                cellCount,
+//                homeCoords,
+//                &count))
+//        return;
+//
+//    SetConsoleCursorPosition(hConsole, homeCoords);
+//}

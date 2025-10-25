@@ -13,6 +13,8 @@
 
 #define JUGADOR 'J'
 
+#define ES_MOVIMIENTO(x)((x) == ARRIBA || (x) == ABAJO || (x) == IZQUIERDA || (x) == DERECHA ? 1 : 0)
+
 typedef struct
 {
     int posFil;
@@ -21,6 +23,7 @@ typedef struct
     int puntos;
 } tJugador;
 
+int ingresarMovimiento();
 char ingresarTeclaDeJugador(unsigned periodo);
 void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna);
 void actualizarPuntosYVidas(tJugador *jug, char celda);
