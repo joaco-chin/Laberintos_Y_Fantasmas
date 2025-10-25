@@ -164,6 +164,7 @@ int actualizarJuegoPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaFan
             fantasma.fil = fantasma.posInicial.fila;
             fantasma.col = fantasma.posInicial.columna;
             fantasma.caracterAnterior = CAMINO;
+            fantasma.estaVivo = FANTASMA_VIVO;
             colaEncolar(&aux, &fantasma, sizeof(tFantasma));
         }
 //        puts("Fantasmas desencolados");
