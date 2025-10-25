@@ -10,8 +10,8 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tFantasma* origen, const 
     tLista openSet, closedSet;
     tCola vecinos;
     tPila camino;
-    tInfoNodo nodoAct = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' ', origen->posInicial}, nodoVecino, nodoAux;
-    tInfoNodo inicio = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' ', origen->posInicial}, meta = {destino->posFil, destino->posCol, 0, 0, 0, -1, -1};
+    tInfoNodo nodoAct = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' ', origen->posInicial, origen->estaVivo}, nodoVecino, nodoAux;
+    tInfoNodo inicio = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' ', origen->posInicial, origen->estaVivo}, meta = {destino->posFil, destino->posCol, 0, 0, 0, -1, -1};
     int pos;
     int metaAlcanzada = 0;
     int codigoDeError = TODO_OK;
@@ -45,10 +45,10 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tFantasma* origen, const 
                     {
                         codigoDeError = pilaApilar(&camino, &inicio, sizeof(tInfoNodo));
                     }
-                    else
-                    {
-                        codigoDeError = -7;
-                    }
+//                    else
+//                    {
+//                        codigoDeError = -7;
+//                    }
                 }
                 else
                 {
@@ -64,6 +64,7 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tFantasma* origen, const 
                 {
                     nodoAct.caracterAnterior = origen->caracterAnterior;
                     nodoAct.posInicial = origen->posInicial;
+                    nodoAct.estaVivo = origen->estaVivo;
                     codigoDeError = colaEncolar(movimientos, &nodoAct, sizeof(tInfoNodo));
                 }
             }
@@ -145,12 +146,19 @@ void actualizarPosicionesFantasmas(char** matriz, int cf, int cc, tCola* colaFan
         fantasma.fil = movFantasma.fil;
         fantasma.col = movFantasma.col;
         fantasma.posInicial = movFantasma.posInicial;
+        fantasma.estaVivo = movFantasma.estaVivo;
 
-        if(matriz[movFantasma.fil][movFantasma.col] != FANTASMA && matriz[movFantasma.fil][movFantasma.col] != JUGADOR)
+        if(matriz[movFantasma.fil][movFantasma.col] == JUGADOR)
+            fantasma.estaVivo = FANTASMA_MUERTO;
+
+        else if(matriz[movFantasma.fil][movFantasma.col] != FANTASMA)
             fantasma.caracterAnterior = matriz[movFantasma.fil][movFantasma.col];
 
         matrizRemplazarCaracterEnPosicion(matriz, FANTASMA, fantasma.fil, fantasma.col, cf, cc);
-        colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
+        if(fantasma.estaVivo != FANTASMA_MUERTO)
+        {
+            colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
+        }
     }
 }
 

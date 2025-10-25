@@ -24,6 +24,7 @@ typedef struct
     int colPadre;
     char caracterAnterior;
     tPosicion posInicial;
+    int estaVivo;
 }tInfoNodo;
 
 typedef struct
