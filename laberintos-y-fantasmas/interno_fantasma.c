@@ -57,14 +57,16 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tFantasma* origen, const 
                 }
             }
 
-            pilaDesapilar(&camino, &nodoAct, sizeof(tInfoNodo));
+
             if(pilaDesapilar(&camino, &nodoAct, sizeof(tInfoNodo)) == TODO_OK)
             {
-                nodoAct.caracterAnterior = origen->caracterAnterior;
-                nodoAct.posInicial = origen->posInicial;
-                codigoDeError = colaEncolar(movimientos, &nodoAct, sizeof(tInfoNodo));
+                if(pilaDesapilar(&camino, &nodoAct, sizeof(tInfoNodo)) == TODO_OK)
+                {
+                    nodoAct.caracterAnterior = origen->caracterAnterior;
+                    nodoAct.posInicial = origen->posInicial;
+                    codigoDeError = colaEncolar(movimientos, &nodoAct, sizeof(tInfoNodo));
+                }
             }
-
         }
         else // Si no llegamos a la meta, seguimos
         {
@@ -137,6 +139,7 @@ void actualizarPosicionesFantasmas(char** matriz, int cf, int cc, tCola* colaFan
 
     while(colaDesencolar(movimientos, &movFantasma, sizeof(tInfoNodo)) == TODO_OK)
     {
+//        printf("fantasma|fil:%d|col:%d\n", movFantasma.fil, movFantasma.col); // TEST
         matrizRemplazarCaracterEnPosicion(matriz, movFantasma.caracterAnterior, movFantasma.filPadre, movFantasma.colPadre, cf, cc);
 
         fantasma.fil = movFantasma.fil;

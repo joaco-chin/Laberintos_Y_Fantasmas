@@ -8,7 +8,7 @@
 #include "interno_laberinto.h"
 #include "estructuras_lista.h"
 
-int partida(SOCKET sockCliente)
+int partida_configuracion(SOCKET sockCliente)
 {
     tConfig conf;
     char linea[TAM_LINEA_CONF];
@@ -39,12 +39,12 @@ int partida(SOCKET sockCliente)
     // guarda la matriz en "laberinto.txt"
     escribirMatrizEnArchivoTxt(matLab, "laberinto.txt", conf.fil, conf.col);
 
-    resultado = loopPartida(matLab, &conf, sockCliente, &colaFantasmas);
+    resultado = partida_ejecucion(matLab, &conf, sockCliente, &colaFantasmas);
     if(resultado == PARTIDA_PERDIDA)
     {
-        puts("Game Over");
-//        Sleep(500);
-        limpiarConsola();
+        puts("****Game Over****");
+        Sleep(TIEMPO_MENSAJE);
+        system("cls");
     }
 
     matrizDestruir((void **)matLab, conf.fil);
@@ -52,15 +52,15 @@ int partida(SOCKET sockCliente)
     return TODO_OK;
 }
 
-int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFantasmas)
+int partida_ejecucion(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFantasmas)
 {
     tJugador jug;
     int filaEntrada, columnaEntrada;
     int filaSalida, columnaSalida;
     char tecla;
     int salida = REANUDAR;
-    tCola movimientos;
-    tCola registro; // Cola para guardar el registro de los movimientos del jugador
+    tCola movimientos; // Cola para guardar los movimientos de la máquina
+    tCola registro; // Lista para guardar el registro de los movimientos del jugador
     int cantMovimientos = 0;
 
     jug.vidas = conf->vidasInicio;
@@ -78,18 +78,13 @@ int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFan
     colaCrear(&movimientos);
     colaCrear(&registro);
 //    tecla = ingresarTeclaDeJugador(VELOCIDAD_JUEGO);
-    tecla = getch();
+    tecla = (char)ingresarMovimiento();
 
     while (salida != TERMINAR && matriz[jug.posFil][jug.posCol] != matriz[filaSalida][columnaSalida])
     {
-        limpiarConsola();
-        printf("Vidas: %d\n", jug.vidas);
-        printf("Puntos: %d\n", jug.puntos);
-
         if(tecla != ESC)
         {
-
-            if ((tecla == ABAJO || tecla == ARRIBA || tecla == IZQUIERDA || tecla == DERECHA))
+            if(ES_MOVIMIENTO(tecla))
             {
                 matrizActualizarPosicionDeJugador(matriz, conf->fil, conf->col, &jug,
                 jug.posFil + (tecla == ABAJO) - (tecla == ARRIBA), jug.posCol + (tecla == DERECHA) - (tecla == IZQUIERDA));
@@ -100,26 +95,22 @@ int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFan
             actualizarPosicionesFantasmas(matriz, conf->fil, conf->col, colaFantasmas, &jug, &movimientos);
             actualizarPuntosYVidas(&jug, matriz[jug.posFil][jug.posCol]);
 
-            salida = matrizActualizarPorEstadoDeVidas(matriz, &jug, colaFantasmas, conf, filaEntrada, columnaEntrada);
-            matrizMostrar(matriz, conf->fil, conf->col);
+            salida = actualizarJuegoPorEstadoDeVidas(matriz, &jug, colaFantasmas, conf, filaEntrada, columnaEntrada);
+            dibujarPantalla(matriz, conf->fil, conf->col, jug.vidas, jug.puntos);
         }
         else
         {
             salida = menuDePausa();
-            limpiarConsola();
-            printf("Vidas: %d\n", jug.vidas);
-            printf("Puntos: %d\n", jug.puntos);
-            matrizMostrar(matriz, conf->fil, conf->col);
+            dibujarPantalla(matriz, conf->fil, conf->col, jug.vidas, jug.puntos);
         }
 
-        // poner un timer si no se preciona tecla durante cierto tiempo pasa un ciclo y se mueven los fantasmas con el jugador quieto
         if(salida != TERMINAR)
         {
-//            tecla = ingresarTeclaDeJugador(VELOCIDAD_JUEGO);
-            tecla = getch();
+            tecla = ingresarTeclaDeJugador(VELOCIDAD_JUEGO); // Ingresa la tecla con un timer
+//            tecla = (char)ingresarMovimiento();
         }
     }
-    limpiarConsola();
+    system("cls");
 
     if (salida == TERMINAR)
     {
@@ -130,6 +121,7 @@ int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFan
 
     // ya se tiene puntaje, contar cant de movimientos del jugador que se guardaron en la cola
     printf("Partida ganada! Puntos: %d, Movimientos: %d\n", jug.puntos, cantMovimientos);
+    Sleep(TIEMPO_MENSAJE);
 
     if (sockCliente != INVALID_SOCKET)
     {
@@ -146,13 +138,13 @@ int loopPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFan
         printf("No se pudo guardar la puntuacion, no hay conexion con el servidor.\n");
     }
 
-//    limpiarConsola();
+    system("cls");
     colaVaciar(&movimientos);
     colaVaciar(&registro);
     return PARTIDA_GANADA;
 }
 
-int matrizActualizarPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaFantasmas, tConfig *conf, int filaEntrada, int columnaEntrada)
+int actualizarJuegoPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaFantasmas, tConfig *conf, int filaEntrada, int columnaEntrada)
 {
     tFantasma fantasma;
     tCola aux;
@@ -166,12 +158,8 @@ int matrizActualizarPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaFa
         matriz[jug->posFil][jug->posCol] = JUGADOR;
         conf->vidasInicio = jug->vidas;
 
-//        puts("Fantasmas encolados");
-        // Hacemos que los fantasmas retrocedan hacia su posicion inicial
         while(colaDesencolar(colaFantasmas, &fantasma, sizeof(tFantasma)) == TODO_OK)
         {
-//            printf("fantasma: fil:%d|col:%d\n", fantasma.fil, fantasma.col);
-//            printf("pos iniciales: fil:%d|col:%d\n", fantasma.posInicial.fila, fantasma.posInicial.columna);
             matriz[fantasma.fil][fantasma.col] = fantasma.caracterAnterior;
             fantasma.fil = fantasma.posInicial.fila;
             fantasma.col = fantasma.posInicial.columna;
@@ -195,6 +183,14 @@ int matrizActualizarPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaFa
     return REANUDAR;
 }
 
+void dibujarPantalla(char **matriz, int cc, int cf, int vidas, int puntos)
+{
+    system("cls");
+    printf("Vidas: %d\n", vidas);
+    printf("Puntos: %d\n", puntos);
+    matrizMostrar(matriz, cc, cf);
+}
+
 void verRanking(SOCKET sockCliente)
 {
     if (sockCliente != INVALID_SOCKET)
@@ -209,5 +205,5 @@ void verRanking(SOCKET sockCliente)
     {
         printf("No se puede ver el ranking, no hay conexion con el servidor.\n");
     }
-    limpiarConsola();
+    system("cls");
 }

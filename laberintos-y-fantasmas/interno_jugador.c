@@ -8,6 +8,16 @@
 #include "interno_matriz.h"
 #include "interno_laberinto.h"
 
+int ingresarMovimiento() // Funcion hecha para solucionar el problema del doble movimiento
+{
+    int entrada = getch();
+    if(entrada == 0 || entrada == 224)
+    {
+        entrada = getch();
+    }
+    return entrada;
+}
+
 char ingresarTeclaDeJugador(unsigned periodo)
 {
     clock_t temp = clock() + periodo;
@@ -18,7 +28,7 @@ char ingresarTeclaDeJugador(unsigned periodo)
     {
         if(kbhit())
         {
-            entrada = getch();
+            entrada = (char)ingresarMovimiento();
             return entrada;
         }
     }
