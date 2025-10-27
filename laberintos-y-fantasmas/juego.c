@@ -16,7 +16,7 @@ void juego()
         switch (opcion)
         {
         case NUEVA_PARTIDA:
-            partida_configuracion(sock);
+            configuracionPartida(sock);
             break;
 
         case VER_RANKING:

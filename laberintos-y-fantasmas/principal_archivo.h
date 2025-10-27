@@ -16,6 +16,7 @@ typedef struct
 typedef int (*Trozar)(char *linea, void *buffer, unsigned tamLinea);
 
 int matrizInicializarDeArchivoTxt(char **matriz, const char *nomArch, int filas, unsigned tamLinea);
+void escribirMatrizEnArchivoTxt(char **matriz, const char *nomArch, int filas, int columnas);
 int inicializarConfConTxt(char *linea, void *buffer, const char *nomArchConf);
 int trozarConfig(char *linea, void *buffer);
 

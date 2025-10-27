@@ -24,7 +24,6 @@ int menu()
         tecla = getch();
 
     system("cls");
-
     mostrarMenu(matPantalla, CANT_OPCIONES);
 
     while (!(pos == SALIR && tecla == ENTER))

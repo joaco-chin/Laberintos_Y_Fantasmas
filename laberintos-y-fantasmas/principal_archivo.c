@@ -53,6 +53,28 @@ int trozarConfig(char *linea, void *buffer)
     return TODO_OK;
 }
 
+void escribirMatrizEnArchivoTxt(char **matriz, const char *nomArch, int filas, int columnas)
+{
+    FILE *archTxt = fopen(nomArch, "wt");
+
+    if (archTxt == NULL)
+    {
+        printf("No se ha podido crear el archivo '%s'\n", nomArch);
+        return;
+    }
+
+    for (int i = 0; i < filas; i++)
+    {
+        for (int j = 0; j < columnas; j++)
+        {
+            fputc(matriz[i][j], archTxt);
+        }
+        fputc('\n', archTxt);
+    }
+
+    fclose(archTxt);
+}
+
 int matrizInicializarDeArchivoTxt(char **matriz, const char *nomArch, int filas, unsigned tamLinea)
 {
     FILE *archTxt = fopen(nomArch, "rt");

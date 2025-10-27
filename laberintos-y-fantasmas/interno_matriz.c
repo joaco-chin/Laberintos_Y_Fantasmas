@@ -30,6 +30,13 @@ void **matrizCrear(unsigned tamElem, int filas, int columnas)
     return matriz;
 }
 
+void inicializarMatrizCaracter(char **matriz, int filas, int columnas, char caracter)
+{
+    for (int i = 0; i < filas; i++)
+        for (int j = 0; j < columnas; j++)
+            matriz[i][j] = caracter;
+}
+
 void matrizMostrar(char **matriz, int filas, int columnas)
 {
     for (int i = 0; i < filas; i++)
