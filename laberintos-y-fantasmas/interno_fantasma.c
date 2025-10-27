@@ -10,8 +10,8 @@ int aStarBusqueda(char** matriz, int cf, int cc, const tFantasma* origen, const 
     tLista openSet, closedSet;
     tCola vecinos;
     tPila camino;
-    tInfoNodo nodoAct = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' ', origen->posInicial, origen->estaVivo}, nodoVecino, nodoAux;
-    tInfoNodo inicio = {origen->fil, origen->col, 0, 0, 0, -1, -1, ' ', origen->posInicial, origen->estaVivo}, meta = {destino->posFil, destino->posCol, 0, 0, 0, -1, -1};
+    tInfoNodo nodoAct = {origen->fil, origen->col, 0, 0, 0, -1, -1, CAMINO, origen->posInicial, origen->estaVivo}, nodoVecino, nodoAux;
+    tInfoNodo inicio = {origen->fil, origen->col, 0, 0, 0, -1, -1, CAMINO, origen->posInicial, origen->estaVivo}, meta = {destino->posFil, destino->posCol, 0, 0, 0, -1, -1};
     int pos;
     int metaAlcanzada = 0;
     int codigoDeError = TODO_OK;

@@ -21,6 +21,7 @@ typedef struct
     int posCol;
     int vidas;
     int puntos;
+    int cantMovimientos;
 } tJugador;
 
 int ingresarMovimiento();

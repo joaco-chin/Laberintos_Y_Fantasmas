@@ -28,7 +28,7 @@
 #define PARED '#'
 #define PARED_TEMPORAL '$'
 #define PARED_RANGO_ENTRADA '+'
-#define CAMINO ' '
+#define CAMINO '.'
 #define ENTRADA 'E'
 #define SALIDA 'S'
 #define FANTASMA 'F'
@@ -55,10 +55,8 @@ int hayCaracterAlrededorDePosicion(char **matriz, int filas, int columnas, int i
 void generarParedesInternas(char **matriz, int filas, int columnas, int maxBloquesPorPared);
 void generarParedesLimite(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal);
 void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tCola* colaFantasmas);
-void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tCola* colaFantasmas);
-
-// funciones para poner en matriz.c
-void inicializarMatrizCaracter(char **matriz, int filas, int columnas, char caracter);
+void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios,
+unsigned *vidasExtra, tCola* colaFantasmas, tPosicion entradaYSalida[]);
 
 // funciones de lista REVISAR
 int listaObtenerDatoPorPosicionREVISAR(tLista *lista, int posicion, void *dato, size_t tamDato);
@@ -67,6 +65,5 @@ int listaPonerAlFinalREVISAR(tLista *pl, const void *dato, size_t tamDato);
 void listaVaciarREVISAR(tLista *pl);
 
 // funcion para poner en principal_archivo
-void escribirMatrizEnArchivoTxt(char **matriz, const char *nomArch, int filas, int columnas);
 
 #endif // INTERNO_LABERINTO_H_INCLUDED

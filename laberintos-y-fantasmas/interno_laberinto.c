@@ -1,7 +1,9 @@
 #include "interno_laberinto.h"
 #include "interno_fantasma.h"
+#include "codigosRet.h"
 
-void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tCola* colaFantasmas)
+void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios,
+unsigned *vidasExtra, tCola* colaFantasmas, tPosicion entradaYsalida[])
 {
     tPosicion posEnt, posSal;
     int maxBloquesPorPared = 2;
@@ -13,13 +15,9 @@ void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned 
     generarParedesLimite(matriz, filas, columnas, posEnt, posSal);
     colocarCaracteresEspeciales(matriz, filas, columnas, fantasmas, premios, vidasExtra, colaFantasmas);
     actualizarCaracterAlrededorDePosicion(matriz, filas, columnas, posEnt, PARED_RANGO_ENTRADA, CAMINO, maxBloquesPorPared + 1);
-}
 
-void inicializarMatrizCaracter(char **matriz, int filas, int columnas, char caracter)
-{
-    for (int i = 0; i < filas; i++)
-        for (int j = 0; j < columnas; j++)
-            matriz[i][j] = caracter;
+    entradaYsalida[0] = posEnt;
+    entradaYsalida[1] = posSal;
 }
 
 void generarParedesLimite(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal)
@@ -69,7 +67,7 @@ void generarParedesInternas(char **matriz, int filas, int columnas, int maxBloqu
     {
         tPosicion posActual = elegirYEliminarPosicionLista(&listaPosLibres, &posLibres);
 
-        if (matriz[posActual.fila][posActual.columna] == ' ' && !hayCaracterAlrededorDePosicion(matriz, filas, columnas, posActual.fila, posActual.columna, PARED))
+        if (matriz[posActual.fila][posActual.columna] == CAMINO && !hayCaracterAlrededorDePosicion(matriz, filas, columnas, posActual.fila, posActual.columna, PARED))
         {
             matriz[posActual.fila][posActual.columna] = PARED_TEMPORAL;
             barajarOrdenDirecciones(ordenDirecciones, 4);
@@ -194,7 +192,7 @@ void colocarCaracterEnEsquinasDePosicion(char **matriz, int filas, int columnas,
 
     for (int i = fs; i <= fi; i += (fi - fs))     // solo las filas de los extremos
         for (int j = cs; j <= ci; j += (ci - cs)) // solo las columnas de los extremos
-            if (matriz[i][j] == ' ')
+            if (matriz[i][j] == CAMINO)
                 matriz[i][j] = caracter;
 }
 
@@ -399,27 +397,4 @@ void listaVaciarREVISAR(tLista *pl)
         free(elim->info);
         free(elim);
     }
-}
-
-// funcion para poner en principal_archivo
-void escribirMatrizEnArchivoTxt(char **matriz, const char *nomArch, int filas, int columnas)
-{
-    FILE *archTxt = fopen(nomArch, "wt");
-
-    if (archTxt == NULL)
-    {
-        printf("No se ha podido crear el archivo '%s'\n", nomArch);
-        return;
-    }
-
-    for (int i = 0; i < filas; i++)
-    {
-        for (int j = 0; j < columnas; j++)
-        {
-            fputc(matriz[i][j], archTxt);
-        }
-        fputc('\n', archTxt);
-    }
-
-    fclose(archTxt);
 }
