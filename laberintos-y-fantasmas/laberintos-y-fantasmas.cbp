@@ -69,10 +69,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="interno_matriz.h" />
-		<Unit filename="juego.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="juego.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
