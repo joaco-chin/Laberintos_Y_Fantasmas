@@ -2,6 +2,7 @@
 #define ARCHIVO_H_INCLUDED
 
 #define TAM_LINEA_CONF 200
+#define TAM_PAL_DIFICULTAD 15
 
 typedef struct
 {
@@ -11,6 +12,7 @@ typedef struct
     unsigned maxNumFantasmas;
     unsigned maxNumPremios;
     unsigned maxVidasExtra;
+    char dificultad[TAM_PAL_DIFICULTAD];
 } tConfig;
 
 typedef int (*Trozar)(char *linea, void *buffer, unsigned tamLinea);

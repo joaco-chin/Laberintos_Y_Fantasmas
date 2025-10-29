@@ -144,6 +144,7 @@ int configuracionPartida(SOCKET sockCliente)
 //    colaVaciar(&registro);
 //    return PARTIDA_GANADA;
 //}
+
 int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFantasmas, tPosicion entradaYSalida[])
 {
     tJugador jug = {entradaYSalida[0].fila, entradaYSalida[0].columna, conf->vidasInicio, 0, 0};
@@ -151,6 +152,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* co
     int salida = REANUDAR;
     tCola movimientos; // Cola para guardar los movimientos de la máquina
     tCola registro; // Cola para guardar el registro de los movimientos del jugador
+    int bonificacion = determinarBonificacion(conf->dificultad);
 
     dibujarInicioPantalla(matriz, conf->fil, conf->col);
     matrizRemplazarCaracterEnPosicion(matriz, JUGADOR, jug.posFil, jug.posCol, conf->fil, conf->col);
@@ -164,7 +166,8 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* co
         if(salida == REANUDAR)
         {
             salida = procesarEventosDePartida(matriz, conf, &jug, colaFantasmas, &movimientos, entradaYSalida);
-            dibujarPantalla(matriz, conf->fil, conf->col, jug.vidas, jug.puntos);
+            dibujarPantalla(matriz, conf->fil, conf->col, conf->dificultad, jug.vidas, jug.puntos);
+//            printf("Bonificacion: %d\n", bonificacion);
         }
         Sleep(TIEMPO_FRAME);
     }
@@ -177,13 +180,13 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* co
         return PARTIDA_PERDIDA;
     }
 
-    printf("Partida ganada! Puntos: %d|Movimientos: %d\n", jug.puntos, jug.cantMovimientos);
+    printf("Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d\n", jug.puntos, bonificacion, jug.puntos * bonificacion, jug.cantMovimientos);
     Sleep(TIEMPO_MENSAJE);
 
     if (sockCliente != INVALID_SOCKET)
     {
         char mensaje[BUFFER_SIZE];
-        sprintf(mensaje, "GUARDAR_PUNTUACION|%d|%d", jug.puntos, jug.cantMovimientos);
+        sprintf(mensaje, "GUARDAR_PUNTUACION|%d|%d", jug.puntos * bonificacion, jug.cantMovimientos);
         char respuesta[BUFFER_SIZE];
         if (enviarPeticion(sockCliente, mensaje, respuesta) == 0)
             printf("[Servidor]: %s\n", respuesta);
@@ -258,10 +261,9 @@ int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaF
             fantasma.estaVivo = FANTASMA_VIVO;
             colaEncolar(&aux, &fantasma, sizeof(tFantasma));
         }
-//        puts("Fantasmas desencolados");
+
         while(colaDesencolar(&aux, &fantasma, sizeof(tFantasma)) == TODO_OK)
         {
-//            printf("fantasma: fil:%d|col:%d\n", fantasma.fil, fantasma.col);
             colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
         }
     }
@@ -275,6 +277,24 @@ int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaF
     return REANUDAR;
 }
 
+int determinarBonificacion(const char *dif)
+{
+    if(strcmpi(dif, "NORMAL") == 0)
+    {
+        return BONIFICACION_NORMAL;
+    }
+    else if(strcmpi(dif, "DIFICIL") == 0)
+    {
+        return BONIFICACION_DIFICIL;
+    }
+    else if(strcmpi(dif, "PESADILLA") == 0)
+    {
+        return BONIFICACION_PESADILLA;
+    }
+
+    return BONIFICACION_FACIL;
+}
+
 void dibujarInicioPantalla(char **matriz, int cc, int cf)
 {
     printf("Presione una tecla para comenzar, finaliza con ESC\n\n");
@@ -282,9 +302,10 @@ void dibujarInicioPantalla(char **matriz, int cc, int cf)
     Sleep(TIEMPO_MENSAJE);
 }
 
-void dibujarPantalla(char **matriz, int cc, int cf, int vidas, int puntos)
+void dibujarPantalla(char **matriz, int cc, int cf, const char* dificultad, int vidas, int puntos)
 {
     system("cls");
+//    printf("Dificultad: %s\n", dificultad);
     printf("Vidas: %d\n", vidas);
     printf("Puntos: %d\n", puntos);
     matrizMostrar(matriz, cc, cf);
@@ -304,5 +325,6 @@ void verRanking(SOCKET sockCliente)
     {
         printf("No se puede ver el ranking, no hay conexion con el servidor.\n");
     }
+    Sleep(TIEMPO_MENSAJE);
     system("cls");
 }

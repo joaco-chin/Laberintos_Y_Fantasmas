@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "juego.h"
+#include "principal_menu.h"
 
 int main()
 {
     srand(time(NULL));
-    juego();
+    menuPrincipal();
 
     return 0;
 }

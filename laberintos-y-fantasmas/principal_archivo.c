@@ -29,6 +29,10 @@ int trozarConfig(char *linea, void *buffer)
     *ptrAct = '\0';
 
     ptrAct = strrchr(linea, '|');
+    strcpy(config->dificultad, ptrAct + 1);
+    *ptrAct = '\0';
+
+    ptrAct = strrchr(linea, '|');
     sscanf(ptrAct + 1, "%d", &config->maxVidasExtra);
     *ptrAct = '\0';
 
@@ -116,3 +120,5 @@ int matrizInicializarDeArchivoTxt(char **matriz, const char *nomArch, int filas,
     fclose(archTxt);
     return TODO_OK;
 }
+
+
