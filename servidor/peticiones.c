@@ -1,4 +1,5 @@
 #include "peticiones.h"
+#include "estructuras_lista.h"
 
 int procesarNombreJugador(SOCKET cliente, char *buffer, char *respuesta, tArbol *arbolJugadores, FILE *archivoJugadores)
 {
@@ -64,7 +65,12 @@ void procesarPeticion(const char *peticion, char *respuesta, FILE *archivoJugado
 {
     if (strcmp(peticion, "VER_RANKING") == 0)
     {
-        strcpy(respuesta, "\n1 Player1  800\n2 Player2  600\n3 Player3  400\nSIMULACION");
+//        strcpy(respuesta, "\n1 Player1  800\n2 Player2  600\n3 Player3  400\nSIMULACION");
+//        mostrarRankingDeJugadores(peticion, archivoJugadores);
+        strcat(respuesta, "---------- Archivo de Jugadores ----------\n");
+        strcat(respuesta, "ID|Nombre     |Puntuacion|Partidas Jugadas\n");
+        mostrarRankingDeJugadores(peticion, archivoJugadores, respuesta);
+        strcat(respuesta, "------------------------------------------\n\n");
     }
     else if (strncmp(peticion, "GUARDAR_PUNTUACION", 18) == 0)
     {
@@ -74,6 +80,43 @@ void procesarPeticion(const char *peticion, char *respuesta, FILE *archivoJugado
     }
     else
         strcpy(respuesta, "Comando no reconocido\n");
+}
+//
+//void mostrarRankingDeJugadores(const char *peticion, FILE* archivoJugadores)
+//{
+//    tLista listaJugadores;
+//    tJugadorArchivo jugador;
+//
+//    fseek(archivoJugadores, 0, SEEK_CUR);
+//    listaCrear(&listaJugadores);
+//
+//    while(fread(&jugador, sizeof(tJugadorArchivo), 1, archivoJugadores))
+//    {
+//        listaInsertarOrdenado(&listaJugadores, &jugador, sizeof(tJugadorArchivo), compararPuntuacionJugadores);
+//    }
+//
+//    listaRecorrer(&listaJugadores, accionMostrarNodoJugadorLista);
+//
+//    listaVaciar(&listaJugadores);
+//    fseek(archivoJugadores, 0, SEEK_CUR);
+//}
+void mostrarRankingDeJugadores(const char *peticion, FILE* archivoJugadores, char *respuesta)
+{
+    tLista listaJugadores;
+    tJugadorArchivo jugador;
+
+    fseek(archivoJugadores, 0, SEEK_CUR);
+    listaCrear(&listaJugadores);
+
+    while(fread(&jugador, sizeof(tJugadorArchivo), 1, archivoJugadores))
+    {
+        listaInsertarOrdenado(&listaJugadores, &jugador, sizeof(tJugadorArchivo), compararPuntuacionJugadores);
+    }
+
+    listaRecorrer(&listaJugadores, accionCopiarNodoListaEnRespuesta, respuesta);
+
+    listaVaciar(&listaJugadores);
+    fseek(archivoJugadores, 0, SEEK_CUR);
 }
 
 int actualizarPuntuacionJugador(const char *peticion, FILE *archivoJugadores, unsigned desplazamiento, FILE *archivoPartidas)
@@ -129,6 +172,21 @@ void accionMostrarNodoJugadorArbol(void *dato, size_t tamDato, unsigned n, void 
     printf("%*s[%d,%s,%d]\n\n", n * 7, "", jugador->id, jugador->nombre, jugador->desplazamiento);
 }
 
+void accionMostrarNodoJugadorLista(const void* a)
+{
+    const tJugadorArchivo *jugador = a;
+    printf("%s|%d|%d\n", jugador->nombre, jugador->puntuacion, jugador->partidasJugadas);
+}
+
+void accionCopiarNodoListaEnRespuesta(void* destino, const void* origen)
+{
+    char *respuesta = destino;
+    const tJugadorArchivo *jugador = origen;
+    char mensaje[200];
+    sprintf(mensaje, "%2d|%-11s|%10d|%16d\n", jugador->id, jugador->nombre, jugador->puntuacion, jugador->partidasJugadas);
+    strcat(respuesta, mensaje);
+}
+
 int compararNombresJugadores(const void *nombre, const void *estructuraJugador)
 {
     const tJugadorArbol *jugador = (const tJugadorArbol *)estructuraJugador;
@@ -141,4 +199,12 @@ int compararIDJugadores(const void *jugadorArbolA, const void *jugadorArbolB)
     const tJugadorArbol *jugadorB = (const tJugadorArbol *)jugadorArbolB;
 
     return jugadorA->id - jugadorB->id;
+}
+
+int compararPuntuacionJugadores(const void *jugadorA, const void *jugadorB)
+{
+    const tJugadorArchivo *j1 = jugadorA;
+    const tJugadorArchivo *j2 = jugadorB;
+
+    return j1->puntuacion - j2->puntuacion;
 }

@@ -41,12 +41,17 @@ typedef struct
 void escribirJugadorEnArchivo(const tJugadorArbol *nuevoJugador, FILE *archivoJugadores);
 int procesarNombreJugador(SOCKET cliente, char *buffer, char *respuesta, tArbol *arbolJugadores, FILE *archivoJugadores);
 void escribirPartidaEnArchivo(tJugadorArchivo *jugador, unsigned puntos, unsigned cantMovimientos, const char *dificultad, FILE *archivoPartidas);
+//void mostrarRankingDeJugadores(const char *peticion, FILE* archivoJugadores);
+void mostrarRankingDeJugadores(const char *peticion, FILE* archivoJugadores, char *respuesta);
 int actualizarPuntuacionJugador(const char *peticion, FILE *archivoJugadores, unsigned desplazamiento, FILE *archivoPartidas);
 void procesarPeticion(const char *peticion, char *respuesta, FILE *archivoJugadores, unsigned desplazamiento, FILE *archivoPartidas);
 
 // funciones auxiliares de juegadores
 int compararNombresJugadores(const void *nombre, const void *estructuraJugador);
 void accionMostrarNodoJugadorArbol(void *dato, size_t tamDato, unsigned n, void *params);
+void accionMostrarNodoJugadorLista(const void* a);
+void accionCopiarNodoListaEnRespuesta(void* destino, const void* origen);
 int compararIDJugadores(const void *jugadorArbolA, const void *jugadorArbolB);
+int compararPuntuacionJugadores(const void *jugadorA, const void *jugadorB);
 
 #endif // PETICIONES_H_INCLUDED

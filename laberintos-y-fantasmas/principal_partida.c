@@ -314,20 +314,30 @@ void dibujarPantalla(char **matriz, int cc, int cf, const char *dificultad, int 
 void verRanking(SOCKET sockCliente)
 {
     char respuesta[BUFFER_SIZE];
+    char tecla;
 
     if(sockCliente != INVALID_SOCKET)
     {
         if(enviarPeticion(sockCliente, "VER_RANKING", respuesta) == 0)
         {
             printf("[Servidor]: %s\n", respuesta);
+            printf("->  Volver");
+            tecla = getch();
+            while(tecla != ENTER)
+            {
+                tecla = getch();
+            }
         }
         else
+        {
             printf("Error al enviar o recibir datos del servidor.\n");
+            Sleep(TIEMPO_MENSAJE);
+        }
     }
     else
     {
         printf("No se puede ver el ranking, no hay conexion con el servidor.\n");
+        Sleep(TIEMPO_MENSAJE);
     }
-    Sleep(TIEMPO_MENSAJE);
     system("cls");
 }
