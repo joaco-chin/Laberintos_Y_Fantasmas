@@ -313,11 +313,14 @@ void dibujarPantalla(char **matriz, int cc, int cf, const char *dificultad, int 
 
 void verRanking(SOCKET sockCliente)
 {
-    if (sockCliente != INVALID_SOCKET)
+    char respuesta[BUFFER_SIZE];
+
+    if(sockCliente != INVALID_SOCKET)
     {
-        char respuesta[BUFFER_SIZE];
-        if (enviarPeticion(sockCliente, "VER_RANKING", respuesta) == 0)
+        if(enviarPeticion(sockCliente, "VER_RANKING", respuesta) == 0)
+        {
             printf("[Servidor]: %s\n", respuesta);
+        }
         else
             printf("Error al enviar o recibir datos del servidor.\n");
     }

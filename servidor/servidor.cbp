@@ -34,9 +34,17 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="estructuras_arbol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="estructuras_arbol.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="peticiones.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="peticiones.h" />
 		<Unit filename="servidor.c">
 			<Option compilerVar="CC" />
 		</Unit>
