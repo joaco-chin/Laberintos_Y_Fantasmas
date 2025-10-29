@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "estructuras_arbol.h"
+#include "peticiones.h"
 
 void correrServidor()
 {
@@ -38,37 +40,79 @@ void correrServidor()
     char respuesta[BUFFER_SIZE];
     int bytesRecibidos;
 
+    // INDICE A ARBOL
+    tArbol arbolJugadores;
+    arbolCrear(&arbolJugadores);
+    if (cargarArchivoOrdenadoEnArbol(&arbolJugadores, ARCHIVO_INDICE, sizeof(tJugadorArbol)) == ERROR_ARCHIVO)
+    {
+        FILE *archivo = fopen(ARCHIVO_INDICE, "wb");
+        if (archivo == NULL)
+        {
+            printf("Error al crear el archivo de indice de jugadores\n");
+            closesocket(cliente);
+            closesocket(servidor);
+            WSACleanup();
+            return;
+        }
+        printf("Archivo de indice de jugadores no encontrado. Se ha creado uno nuevo: %s.\n", ARCHIVO_INDICE);
+    }
+
+    printf("Arbol de jugadores cargado desde el archivo de indice:\n");
+    arbolRecorrerEnOrden(&arbolJugadores, 0, NULL, accionMostrarNodoJugadorArbol);
+
+    // ABRIR ARCHIVO JUGADORES
+    // Abrir en modo lectura/actualizacion binaria. Si no existe, crearlo en modo w+b.
+    FILE *archivoJugadores = fopen(ARCHIVO_JUGADORES, "r+b");
+    if (archivoJugadores == NULL)
+    {
+        archivoJugadores = fopen(ARCHIVO_JUGADORES, "w+b");
+        if (archivoJugadores == NULL)
+        {
+            printf("Error al crear el archivo de jugadores\n");
+            closesocket(cliente);
+            closesocket(servidor);
+            WSACleanup();
+            return;
+        }
+    }
+
+    // ABRIR ARCHIVO PARTIDAS
+    FILE *archivoPartidas = fopen(ARCHIVO_PARTIDAS, "r+b");
+    if (archivoPartidas == NULL)
+    {
+        archivoPartidas = fopen(ARCHIVO_PARTIDAS, "w+b");
+        if (archivoPartidas == NULL)
+        {
+            printf("Error al crear el archivo de partidas\n");
+            closesocket(cliente);
+            closesocket(servidor);
+            WSACleanup();
+            return;
+        }
+    }
+
     printf("Cliente conectado\n");
-    procesarNombreJugador(cliente, buffer, respuesta);
+    int desplazamiento = procesarNombreJugador(cliente, buffer, respuesta, &arbolJugadores, archivoJugadores);
 
     while ((bytesRecibidos = recv(cliente, buffer, BUFFER_SIZE - 1, 0)) > 0)
     {
         buffer[bytesRecibidos] = '\0';
         printf("Peticion recibida: %s\n", buffer);
 
-        procesarPeticion(buffer, respuesta);
+        procesarPeticion(buffer, respuesta, archivoJugadores, desplazamiento, archivoPartidas);
 
         send(cliente, respuesta, strlen(respuesta), 0);
     }
 
     printf("Cliente desconectado\n");
+
+    arbolVaciar(&arbolJugadores);
+    fclose(archivoJugadores);
+    fclose(archivoPartidas);
+
     closesocket(cliente);
     closesocket(servidor);
     WSACleanup();
-}
-
-void procesarPeticion(const char *peticion, char *respuesta)
-{
-    if (strcmp(peticion, "VER_RANKING") == 0)
-    {
-        strcpy(respuesta, "\n1 Player1  800\n2 Player2  600\n3 Player3  400\nSIMULACION");
-    }
-    else if (strncmp(peticion, "GUARDAR_PUNTUACION", 18) == 0) // compara solo los primeros 18 caracteres
-    {
-        strcpy(respuesta, "Puntuacion guardada correctamente SIMULACION");
-    }
-    else
-        strcpy(respuesta, "Comando no reconocido\n");
 }
 
 SOCKET crearSocketServidor()
@@ -106,21 +150,4 @@ int iniciarWinsock()
 {
     WSADATA wsaData;
     return WSAStartup(MAKEWORD(2, 2), &wsaData);
-}
-
-//funcion que va en las funciones que manejan los archivos (base de datos)
-int procesarNombreJugador(SOCKET cliente, char *buffer, char *respuesta)
-{
-    recv(cliente, buffer, BUFFER_SIZE - 1, 0);
-    // si existe: "jugador existente"
-    sprintf(respuesta, "jugador existente, bienvenido de nuevo %s SIMULACION", buffer);
-    printf("Nombre del jugador: %s\n", buffer);
-    
-    // si no existe: "nuevo jugador": se actualiza la base de datos
-    // strcpy(respuesta, "nuevo jugador, bienvenido");
-    // printf("Nombre del nuevo jugador: %s, actualizando base de datos...\n", buffer);
-
-    send(cliente, respuesta, strlen(respuesta), 0);
-
-    return 0;
 }

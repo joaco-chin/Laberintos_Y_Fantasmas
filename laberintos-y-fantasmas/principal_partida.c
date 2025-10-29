@@ -35,13 +35,13 @@ int configuracionPartida(SOCKET sockCliente)
     // generarLaberintoAleatorio-> conf: contiene filas, columnas, maxNumFantasmas, maxNumPremios, maxVidasExtra REALES generados en el laberinto
     colaCrear(&colaFantasmas); // Creamos la lista de fantasmas para enviarla como parametro a la generacion del laberinto, para poder cargar las posiciones iniciales de cada fantasma
     generarLaberintoAleatorio(matLab, conf.fil, conf.col, &conf.maxNumFantasmas, &conf.maxNumPremios,
-    &conf.maxVidasExtra, &colaFantasmas, entradaYSalida);
+                              &conf.maxVidasExtra, &colaFantasmas, entradaYSalida);
 
     // guarda la matriz en "laberinto.txt"
     escribirMatrizEnArchivoTxt(matLab, "laberinto.txt", conf.fil, conf.col);
 
     resultado = ejecucionPartida(matLab, &conf, sockCliente, &colaFantasmas, entradaYSalida);
-    if(resultado == PARTIDA_PERDIDA)
+    if (resultado == PARTIDA_PERDIDA)
     {
         puts("****Game Over****");
         Sleep(TIEMPO_MENSAJE);
@@ -53,14 +53,14 @@ int configuracionPartida(SOCKET sockCliente)
     return TODO_OK;
 }
 //
-//int partida_ejecucion(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFantasmas)
+// int partida_ejecucion(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFantasmas)
 //{
 //    tJugador jug;
 //    int filaEntrada, columnaEntrada;
 //    int filaSalida, columnaSalida;
 //    char tecla;
 //    int salida = REANUDAR;
-//    tCola movimientos; // Cola para guardar los movimientos de la máquina
+//    tCola movimientos; // Cola para guardar los movimientos de la mï¿½quina
 //    tCola registro; // Lista para guardar el registro de los movimientos del jugador
 //    int cantMovimientos = 0;
 //
@@ -145,13 +145,13 @@ int configuracionPartida(SOCKET sockCliente)
 //    return PARTIDA_GANADA;
 //}
 
-int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFantasmas, tPosicion entradaYSalida[])
+int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *colaFantasmas, tPosicion entradaYSalida[])
 {
     tJugador jug = {entradaYSalida[0].fila, entradaYSalida[0].columna, conf->vidasInicio, 0, 0};
     //|jug.fil = -1|jug.col = -1|jug.vidas = conf->vidasInicio|jug.puntos = 0 |jug.cantMovimientos = 0|
     int salida = REANUDAR;
-    tCola movimientos; // Cola para guardar los movimientos de la máquina
-    tCola registro; // Cola para guardar el registro de los movimientos del jugador
+    tCola movimientos; // Cola para guardar los movimientos de la mï¿½quina
+    tCola registro;    // Cola para guardar el registro de los movimientos del jugador
     int bonificacion = determinarBonificacion(conf->dificultad);
 
     dibujarInicioPantalla(matriz, conf->fil, conf->col);
@@ -159,15 +159,15 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* co
     colaCrear(&movimientos);
     colaCrear(&registro);
 
-    while(salida != TERMINAR && matriz[jug.posFil][jug.posCol] != matriz[entradaYSalida[1].fila][entradaYSalida[1].columna])
+    while (salida != TERMINAR && matriz[jug.posFil][jug.posCol] != matriz[entradaYSalida[1].fila][entradaYSalida[1].columna])
     {
         salida = procesarAccionDeJugador(matriz, conf->fil, conf->col, &jug, &registro);
 
-        if(salida == REANUDAR)
+        if (salida == REANUDAR)
         {
             salida = procesarEventosDePartida(matriz, conf, &jug, colaFantasmas, &movimientos, entradaYSalida);
             dibujarPantalla(matriz, conf->fil, conf->col, conf->dificultad, jug.vidas, jug.puntos);
-//            printf("Bonificacion: %d\n", bonificacion);
+            //            printf("Bonificacion: %d\n", bonificacion);
         }
         Sleep(TIEMPO_FRAME);
     }
@@ -186,7 +186,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* co
     if (sockCliente != INVALID_SOCKET)
     {
         char mensaje[BUFFER_SIZE];
-        sprintf(mensaje, "GUARDAR_PUNTUACION|%d|%d", jug.puntos * bonificacion, jug.cantMovimientos);
+        sprintf(mensaje, "GUARDAR_PUNTUACION|%d|%d|%s", jug.puntos * bonificacion, jug.cantMovimientos, conf->dificultad);
         char respuesta[BUFFER_SIZE];
         if (enviarPeticion(sockCliente, mensaje, respuesta) == 0)
             printf("[Servidor]: %s\n", respuesta);
@@ -208,17 +208,17 @@ int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tCola 
 {
     char tecla = ingresarTeclaDeJugador(TIEMPO_INPUT);
 
-    if(tecla == ESC)
+    if (tecla == ESC)
     {
-        if(menuDePausa() != REANUDAR)
+        if (menuDePausa() != REANUDAR)
         {
             return TERMINAR;
         }
     }
-    else if(ES_MOVIMIENTO(tecla))
+    else if (ES_MOVIMIENTO(tecla))
     {
         matrizActualizarPosicionDeJugador(matriz, cf, cc, jug,
-        jug->posFil + (tecla == ABAJO) - (tecla == ARRIBA), jug->posCol + (tecla == DERECHA) - (tecla == IZQUIERDA));
+                                          jug->posFil + (tecla == ABAJO) - (tecla == ARRIBA), jug->posCol + (tecla == DERECHA) - (tecla == IZQUIERDA));
         jug->cantMovimientos++;
         colaEncolar(registro, jug, sizeof(tJugador));
     }
@@ -231,14 +231,14 @@ int procesarEventosDePartida(char **matriz, tConfig *conf, tJugador *jug, tCola 
     calcularMovimientosFantasmas(matriz, conf->fil, conf->col, colaFantasmas, jug, movimientos);
     actualizarPosicionesFantasmas(matriz, conf->fil, conf->col, colaFantasmas, jug, movimientos);
     actualizarPuntosYVidas(jug, matriz[jug->posFil][jug->posCol]);
-    if(actualizarPartidaPorEstadoDeVidas(matriz, jug, colaFantasmas, conf, entradaYSalida[0].fila, entradaYSalida[0].columna) != REANUDAR)
+    if (actualizarPartidaPorEstadoDeVidas(matriz, jug, colaFantasmas, conf, entradaYSalida[0].fila, entradaYSalida[0].columna) != REANUDAR)
     {
         return TERMINAR;
     }
     return REANUDAR;
 }
 
-int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaFantasmas, tConfig *conf, int filaEntrada, int columnaEntrada)
+int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tCola *colaFantasmas, tConfig *conf, int filaEntrada, int columnaEntrada)
 {
     tFantasma fantasma;
     tCola aux;
@@ -252,7 +252,7 @@ int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaF
         matriz[jug->posFil][jug->posCol] = JUGADOR;
         conf->vidasInicio = jug->vidas;
 
-        while(colaDesencolar(colaFantasmas, &fantasma, sizeof(tFantasma)) == TODO_OK)
+        while (colaDesencolar(colaFantasmas, &fantasma, sizeof(tFantasma)) == TODO_OK)
         {
             matriz[fantasma.fil][fantasma.col] = fantasma.caracterAnterior;
             fantasma.fil = fantasma.posInicial.fila;
@@ -262,7 +262,7 @@ int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaF
             colaEncolar(&aux, &fantasma, sizeof(tFantasma));
         }
 
-        while(colaDesencolar(&aux, &fantasma, sizeof(tFantasma)) == TODO_OK)
+        while (colaDesencolar(&aux, &fantasma, sizeof(tFantasma)) == TODO_OK)
         {
             colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
         }
@@ -279,15 +279,15 @@ int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaF
 
 int determinarBonificacion(const char *dif)
 {
-    if(strcmpi(dif, "NORMAL") == 0)
+    if (strcmpi(dif, "NORMAL") == 0)
     {
         return BONIFICACION_NORMAL;
     }
-    else if(strcmpi(dif, "DIFICIL") == 0)
+    else if (strcmpi(dif, "DIFICIL") == 0)
     {
         return BONIFICACION_DIFICIL;
     }
-    else if(strcmpi(dif, "PESADILLA") == 0)
+    else if (strcmpi(dif, "PESADILLA") == 0)
     {
         return BONIFICACION_PESADILLA;
     }
@@ -302,10 +302,10 @@ void dibujarInicioPantalla(char **matriz, int cc, int cf)
     Sleep(TIEMPO_MENSAJE);
 }
 
-void dibujarPantalla(char **matriz, int cc, int cf, const char* dificultad, int vidas, int puntos)
+void dibujarPantalla(char **matriz, int cc, int cf, const char *dificultad, int vidas, int puntos)
 {
     system("cls");
-//    printf("Dificultad: %s\n", dificultad);
+    //    printf("Dificultad: %s\n", dificultad);
     printf("Vidas: %d\n", vidas);
     printf("Puntos: %d\n", puntos);
     matrizMostrar(matriz, cc, cf);
