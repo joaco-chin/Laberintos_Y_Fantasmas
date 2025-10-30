@@ -188,8 +188,17 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
         char mensaje[BUFFER_SIZE];
         sprintf(mensaje, "GUARDAR_PUNTUACION|%d|%d|%s", jug.puntos * bonificacion, jug.cantMovimientos, conf->dificultad);
         char respuesta[BUFFER_SIZE];
+        char tecla;
         if (enviarPeticion(sockCliente, mensaje, respuesta) == 0)
+        {
             printf("[Servidor]: %s\n", respuesta);
+            printf("->  Volver");
+            tecla = getch();
+            while (tecla != ENTER)
+            {
+                tecla = getch();
+            }
+        }
         else
             printf("Error al enviar o recibir datos del servidor.\n");
     }
@@ -316,14 +325,14 @@ void verRanking(SOCKET sockCliente)
     char respuesta[BUFFER_SIZE];
     char tecla;
 
-    if(sockCliente != INVALID_SOCKET)
+    if (sockCliente != INVALID_SOCKET)
     {
-        if(enviarPeticion(sockCliente, "VER_RANKING", respuesta) == 0)
+        if (enviarPeticion(sockCliente, "VER_RANKING", respuesta) == 0)
         {
-            printf("[Servidor]: %s\n", respuesta);
+            printf("[Servidor]:\n%s\n", respuesta);
             printf("->  Volver");
             tecla = getch();
-            while(tecla != ENTER)
+            while (tecla != ENTER)
             {
                 tecla = getch();
             }
