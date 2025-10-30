@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include "estructuras_arbol.h"
 #include "peticiones.h"
+#include "estructuras_lista.h"
 
 void correrServidor()
 {
@@ -55,60 +56,55 @@ void correrServidor()
             return;
         }
         printf("Archivo de indice de jugadores no encontrado. Se ha creado uno nuevo: %s.\n", ARCHIVO_INDICE);
+        fclose(archivo);
     }
 
     printf("Arbol de jugadores cargado desde el archivo de indice:\n");
     arbolRecorrerEnOrden(&arbolJugadores, 0, NULL, accionMostrarNodoJugadorArbol);
 
-    // ABRIR ARCHIVO JUGADORES
-    // Abrir en modo lectura/actualizacion binaria. Si no existe, crearlo en modo w+b.
-    FILE *archivoJugadores = fopen(ARCHIVO_JUGADORES, "r+b");
-    if (archivoJugadores == NULL)
+    // abrir archivos de datos
+    FILE *archivoJugadores;
+    FILE *archivoPartidas;
+    FILE *archivoRanking;
+    if (abrirArchivosDeDatos(&archivoJugadores, &archivoPartidas, &archivoRanking) != TODO_OK)
     {
-        archivoJugadores = fopen(ARCHIVO_JUGADORES, "w+b");
-        if (archivoJugadores == NULL)
-        {
-            printf("Error al crear el archivo de jugadores\n");
-            closesocket(cliente);
-            closesocket(servidor);
-            WSACleanup();
-            return;
-        }
+        printf("Error al abrir los archivos de datos\n");
+        closesocket(cliente);
+        closesocket(servidor);
+        WSACleanup();
+        return;
     }
 
-    // ABRIR ARCHIVO PARTIDAS
-    FILE *archivoPartidas = fopen(ARCHIVO_PARTIDAS, "r+b");
-    if (archivoPartidas == NULL)
-    {
-        archivoPartidas = fopen(ARCHIVO_PARTIDAS, "w+b");
-        if (archivoPartidas == NULL)
-        {
-            printf("Error al crear el archivo de partidas\n");
-            closesocket(cliente);
-            closesocket(servidor);
-            WSACleanup();
-            return;
-        }
-    }
+    // archivo ranking a lista
+    tLista listaRanking;
+    listaCrear(&listaRanking);
+    archivoRankingAlista(&listaRanking, archivoRanking);
 
     printf("Cliente conectado\n");
     int desplazamiento = procesarNombreJugador(cliente, buffer, respuesta, &arbolJugadores, archivoJugadores);
+    respuesta[0] = '\0';
 
     while ((bytesRecibidos = recv(cliente, buffer, BUFFER_SIZE - 1, 0)) > 0)
     {
+        // realizar encolado aca(?????)
+
         buffer[bytesRecibidos] = '\0';
         printf("Peticion recibida: %s\n", buffer);
 
-        procesarPeticion(buffer, respuesta, archivoJugadores, desplazamiento, archivoPartidas);
+        procesarPeticion(buffer, respuesta, archivoJugadores, desplazamiento, archivoPartidas, &listaRanking);
 
         send(cliente, respuesta, strlen(respuesta), 0);
+        respuesta[0] = '\0';
     }
 
     printf("Cliente desconectado\n");
 
+    listaRankingAarchivo(&listaRanking, archivoRanking);
+    guardarArbolEnArchivo(&arbolJugadores, ARCHIVO_INDICE);
+
     arbolVaciar(&arbolJugadores);
-    fclose(archivoJugadores);
-    fclose(archivoPartidas);
+    listaVaciar(&listaRanking);
+    cerrarArchivosDeDatos(archivoJugadores, archivoPartidas, archivoRanking);
 
     closesocket(cliente);
     closesocket(servidor);
