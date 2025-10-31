@@ -6,7 +6,7 @@
 #include "interno_fantasma.h"
 #include "estructuras_lista.h"
 
-int configuracionPartida(SOCKET sockCliente)
+int configuracionPartida(SOCKET sockCliente, int altoStdscr, int anchoStdscr)
 {
     tConfig conf;
     char linea[TAM_LINEA_CONF];
@@ -39,7 +39,7 @@ int configuracionPartida(SOCKET sockCliente)
     // guarda la matriz en "laberinto.txt"
     escribirMatrizEnArchivoTxt(matLab, "laberinto.txt", conf.fil, conf.col);
 
-    resultado = ejecucionPartida(matLab, &conf, sockCliente, &colaFantasmas, entradaYSalida);
+    resultado = ejecucionPartida(matLab, &conf, sockCliente, &colaFantasmas, entradaYSalida, anchoStdscr, altoStdscr);
     if (resultado == PARTIDA_PERDIDA)
     {
         clear();
@@ -145,7 +145,7 @@ int configuracionPartida(SOCKET sockCliente)
 //    return PARTIDA_GANADA;
 //}
 
-int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *colaFantasmas, tPosicion entradaYSalida[])
+int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *colaFantasmas, tPosicion entradaYSalida[], int altoStdscr, int anchoStdscr)
 {
     tJugador jug = {entradaYSalida[0].fila, entradaYSalida[0].columna, conf->vidasInicio, 0, 0};
     //|jug.fil = -1|jug.col = -1|jug.vidas = conf->vidasInicio|jug.puntos = 0 |jug.cantMovimientos = 0|
@@ -161,7 +161,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
 
     while (salida != TERMINAR && matriz[jug.posFil][jug.posCol] != matriz[entradaYSalida[1].fila][entradaYSalida[1].columna])
     {
-        salida = procesarAccionDeJugador(matriz, conf->fil, conf->col, &jug, &registro);
+        salida = procesarAccionDeJugador(matriz, conf->fil, conf->col, &jug, &registro, altoStdscr, anchoStdscr);
 
         if (salida == REANUDAR)
         {
@@ -190,11 +190,12 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
         char mensaje[BUFFER_SIZE];
         sprintf(mensaje, "GUARDAR_PUNTUACION|%d|%d|%s", jug.puntos * bonificacion, jug.cantMovimientos, conf->dificultad);
         char respuesta[BUFFER_SIZE];
-        char tecla;
+        int tecla;
         if (enviarPeticion(sockCliente, mensaje, respuesta) == 0)
         {
-            printf("[Servidor]: %s\n", respuesta);
-            printf("->  Volver");
+            clear();
+            mvprintw(0, 0, "[Servidor]: %s\n", respuesta);
+            mvprintw(0, 0, "->  Volver");
             tecla = getch();
             while (tecla != ENTER)
             {
@@ -202,14 +203,16 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
             }
         }
         else
-            printf("Error al enviar o recibir datos del servidor.\n");
+            mvprintw(0, 0, "Error al enviar o recibir datos del servidor.\n");
+
+        refresh();
     }
     else
     {
-//        clear();
-//        mvprintw(0, 0, "No se pudo guardar la puntuacion, no hay conexion con el servidor.\n");
-//        refresh();
-//        napms(TIEMPO_MENSAJE);
+        clear();
+        mvprintw(0, 0, "No se pudo guardar la puntuacion, no hay conexion con el servidor.\n");
+        refresh();
+        napms(TIEMPO_MENSAJE);
 //        dibujarMensaje("No se pudo guardar la puntuacion, no hay conexion con el servidor");
     }
 
@@ -218,14 +221,14 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
     return PARTIDA_GANADA;
 }
 
-int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tCola *registro)
+int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tCola *registro, int altoStdscr, int anchoStdscr)
 {
 //    char tecla = ingresarTeclaDeJugador(TIEMPO_INPUT);
     int tecla = getch();
 
     if(tecla == ESC)
     {
-        if (menuDePausa() != REANUDAR)
+        if (menuDePausa(altoStdscr, anchoStdscr) != REANUDAR)
         {
             return TERMINAR;
         }
@@ -313,14 +316,16 @@ int determinarBonificacion(const char *dif)
 void verRanking(SOCKET sockCliente)
 {
     char respuesta[BUFFER_SIZE];
-    char tecla;
+    int tecla;
 
+    clear();
     if (sockCliente != INVALID_SOCKET)
     {
         if (enviarPeticion(sockCliente, "VER_RANKING", respuesta) == 0)
         {
-            printf("[Servidor]:\n%s\n", respuesta);
-            printf("->  Volver");
+            mvprintw(0, 0, "[Servidor]:\n%s\n", respuesta);
+            mvprintw(0, 0, "->  Volver");
+            refresh();
             tecla = getch();
             while (tecla != ENTER)
             {
@@ -329,14 +334,13 @@ void verRanking(SOCKET sockCliente)
         }
         else
         {
-            printf("Error al enviar o recibir datos del servidor.\n");
-            Sleep(TIEMPO_MENSAJE);
+            fprintf(stderr, "Error al enviar o recibir datos del servidor.\n");
         }
     }
     else
     {
-        printf("No se puede ver el ranking, no hay conexion con el servidor.\n");
-        Sleep(TIEMPO_MENSAJE);
+        mvprintw(0, 0, "Error al enviar o recibir datos del servidor.\n");
+        refresh();
+        napms(TIEMPO_MENSAJE);
     }
-    system("cls");
 }

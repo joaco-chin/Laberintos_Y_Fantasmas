@@ -1,8 +1,8 @@
 #include "interno_cliente.h"
 #include <stdio.h>
 #include <string.h>
-#include <curses.h>
 #include <windows.h>
+#include "interno_pantalla.h"
 
 SOCKET clienteConectarAlServidor()
 {
@@ -10,6 +10,7 @@ SOCKET clienteConectarAlServidor()
     {
         printw("Error al iniciar Winsock.\n");
         refresh();
+        napms(TIEMPO_MENSAJE);
         return INVALID_SOCKET;
     }
 
@@ -18,23 +19,23 @@ SOCKET clienteConectarAlServidor()
     {
         printw("Error al conectar al servidor.\n");
         refresh();
-        napms(200);
+        napms(TIEMPO_MENSAJE);
         WSACleanup();
         return INVALID_SOCKET;
     }
 
     printw("Conectado al servidor %s:%d\n", SERVER_IP, PORT);
-    refresh();
 
     char nombreUsuario[BUFFER_SIZE];
     char respuesta[BUFFER_SIZE];
     int flag = 1;
 
-    while (flag == 1)
+    while(flag == 1)
     {
         printw("Ingrese su nombre de usuario:\n> ");
         refresh();
-        if (fgets(nombreUsuario, sizeof(nombreUsuario), stdin) == NULL)
+//        fgets(nombreUsuario, sizeof(nombreUsuario), stdin) == NULL
+        if(getnstr(nombreUsuario, sizeof(nombreUsuario) - 1) == ERR)
         {
             printw("Error al leer el nombre de usuario, intenta de nuevo.\n");
             refresh();
@@ -44,7 +45,7 @@ SOCKET clienteConectarAlServidor()
         nombreUsuario[strcspn(nombreUsuario, "\n")] = 0;
         eliminarEspaciosAlInicioYFin(nombreUsuario);
 
-        if (strlen(nombreUsuario) == 0)
+        if(strlen(nombreUsuario) == 0)
         {
             printw("El nombre de usuario no puede estar vacio.\n");
             refresh();
@@ -53,12 +54,13 @@ SOCKET clienteConectarAlServidor()
         flag = 0;
     }
 
-    if (enviarPeticion(sock, nombreUsuario, respuesta) == 0)
+    if(enviarPeticion(sock, nombreUsuario, respuesta) == 0)
         printw("[Servidor]: %s\n", respuesta);
     else
         printw("Error al enviar o recibir datos del servidor.\n");
 
     refresh();
+    napms(TIEMPO_MENSAJE * 2);
 
     return sock;
 }

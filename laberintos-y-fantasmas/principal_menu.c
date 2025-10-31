@@ -1,13 +1,12 @@
 #include "principal_menu.h"
 #include <stdio.h>
-#include <winsock2.h>
 #include <windows.h> // para limpiar consola
 #include "codigosRet.h"
 #include "principal_partida.h"
 #include "interno_cliente.h"
 #include "interno_jugador.h"
 
-void menuPrincipal()
+void menuPrincipal(SOCKET sock, int altoStdscr, int anchoStdscr)
 {
     int pos = 0;
     int tecla;
@@ -18,9 +17,8 @@ void menuPrincipal()
         "   Dificultad",
         "   Salir",
     };
-    SOCKET sock = clienteConectarAlServidor();
 
-    dibujarTitulos();
+    dibujarTitulos(altoStdscr, anchoStdscr);
 
     tecla = getch();
     while(tecla != ENTER)
@@ -28,7 +26,7 @@ void menuPrincipal()
         tecla = getch();
     }
 
-    dibujarMenu(matPantalla, CANT_OPCIONES_PRINCIPAL, SIN_TITULO);
+    dibujarMenu(matPantalla, CANT_OPCIONES_PRINCIPAL, SIN_TITULO, altoStdscr, anchoStdscr);
 
     while (!(pos == SALIR && tecla == ENTER))
     {
@@ -43,7 +41,7 @@ void menuPrincipal()
         {
             if (pos == 0)
             {
-                configuracionPartida(sock);
+                configuracionPartida(sock, altoStdscr, anchoStdscr);
             }
 
             else if(pos == 1)
@@ -53,25 +51,25 @@ void menuPrincipal()
 
             else if(pos == 2)
             {
-                menuDeDificultad();
+                menuDeDificultad(altoStdscr, anchoStdscr);
             }
         }
 
-        dibujarMenu(matPantalla, CANT_OPCIONES_PRINCIPAL, SIN_TITULO);
+        dibujarMenu(matPantalla, CANT_OPCIONES_PRINCIPAL, SIN_TITULO, altoStdscr, anchoStdscr);
     }
 }
 
-int menuDeConfirmacion()
+int menuDeConfirmacion(int altoStdscr, int anchoStdscr)
 {
     int pos = 0;
-    char tecla;
+    int tecla;
     char matrizPantalla[CANT_OPCIONES_CONFIRMACION][TAM_PAL_OPCION] =
     {
         "-> No",
         "   Si"
     };
 
-    dibujarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, "Seguro que desea salir? Su partida se tomara como perdida\n");
+    dibujarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, "Seguro que desea salir? Su partida se tomara como perdida\n", altoStdscr, anchoStdscr);
     tecla = getch();
 
     while(tecla != ESC && tecla != ENTER)
@@ -81,7 +79,7 @@ int menuDeConfirmacion()
             actualizarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, &pos, pos + (tecla == KEY_DOWN) - (tecla == KEY_UP));
         }
 
-        dibujarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, "Seguro que desea salir? Su partida se tomara como perdida\n");
+        dibujarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, "Seguro que desea salir? Su partida se tomara como perdida\n", altoStdscr, anchoStdscr);
         tecla = getch();
     }
 
@@ -93,10 +91,10 @@ int menuDeConfirmacion()
     return TERMINAR;
 }
 
-int menuDePausa()
+int menuDePausa(int altoStdscr, int anchoStdscr)
 {
     int pos = 0;
-    char tecla;
+    int tecla;
     char matrizPantalla[CANT_OPCIONES_PAUSA][TAM_PAL_OPCION] =
     {
         "-> Volver al juego",
@@ -104,13 +102,13 @@ int menuDePausa()
     };
     int salida = REANUDAR;
 
-    dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- PAUSA -");
+    dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- PAUSA -", altoStdscr, anchoStdscr);
     tecla = getch();
     while(salida == REANUDAR && !(tecla == ESC || (pos == 0 && tecla == ENTER)))
     {
         if(pos == 1 && tecla == ENTER)
         {
-            salida = menuDeConfirmacion();
+            salida = menuDeConfirmacion(altoStdscr, anchoStdscr);
         }
 
         else if(tecla == KEY_DOWN || tecla == KEY_UP)
@@ -120,7 +118,7 @@ int menuDePausa()
 
         if(salida == REANUDAR)
         {
-            dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- PAUSA -");
+            dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- PAUSA -", altoStdscr, anchoStdscr);
             tecla = getch();
         }
     }
@@ -128,7 +126,7 @@ int menuDePausa()
     return salida;
 }
 
-int subMenuDeDificultad()
+int subMenuDeDificultad(int altoStdscr, int anchoStdscr)
 {
     int pos = OPCION_NORMAL;
     int tecla;
@@ -145,7 +143,7 @@ int subMenuDeDificultad()
         return ERR_ARCHIVO;
     }
 
-    dibujarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD, "- DIFICULTAD -");
+    dibujarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD, "- DIFICULTAD -", altoStdscr, anchoStdscr);
     tecla = getch();
 
     while(tecla != ENTER)
@@ -155,7 +153,7 @@ int subMenuDeDificultad()
             actualizarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD, &pos, pos + (tecla == KEY_DOWN) - (tecla == KEY_UP));
         }
 
-        dibujarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD, "- DIFICULTAD -");
+        dibujarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD, "- DIFICULTAD -", altoStdscr, anchoStdscr);
         tecla = getch();
     }
 
@@ -179,7 +177,7 @@ int subMenuDeDificultad()
     return TODO_OK;
 }
 
-void menuDeDificultad()
+void menuDeDificultad(int altoStdscr, int anchoStdscr)
 {
     int tecla;
     int pos = 0;
@@ -189,16 +187,16 @@ void menuDeDificultad()
         "   Volver al menu principal"
     };
 
-    dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- DIFICULTAD -");
+    dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- DIFICULTAD -", altoStdscr, anchoStdscr);
     tecla = getch();
 
     while(!(pos == 1 && tecla == ENTER))
     {
         if(pos == 0 && tecla == ENTER)
         {
-            if(subMenuDeDificultad() == ERR_ARCHIVO)
+            if(subMenuDeDificultad(altoStdscr, anchoStdscr) == ERR_ARCHIVO)
             {
-                printw("Error en la apertura del archivo\n");
+                fprintf(stderr, "Error en la apertura del archivo\n");
             }
         }
 
@@ -207,7 +205,7 @@ void menuDeDificultad()
             actualizarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, &pos, pos + (tecla == KEY_DOWN) - (tecla == KEY_UP));
         }
 
-        dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- DIFICULTAD -");
+        dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- DIFICULTAD -", altoStdscr, anchoStdscr);
         tecla = getch();
     }
 }
