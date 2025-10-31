@@ -1,53 +1,66 @@
 #include "interno_cliente.h"
 #include <stdio.h>
 #include <string.h>
+#include <windows.h>
+#include "interno_pantalla.h"
 
 SOCKET clienteConectarAlServidor()
 {
     if (iniciarWinsock() != 0)
     {
-        printf("Error al iniciar Winsock.\n");
+        printw("Error al iniciar Winsock.\n");
+        refresh();
+        napms(TIEMPO_MENSAJE);
         return INVALID_SOCKET;
     }
 
     SOCKET sock = conectarAlServidor(SERVER_IP, PORT);
-    if (sock == INVALID_SOCKET)
+    if(sock == INVALID_SOCKET)
     {
-        printf("Error al conectar al servidor.\n");
+        printw("Error al conectar al servidor.\n");
+        refresh();
+        napms(TIEMPO_MENSAJE);
         WSACleanup();
         return INVALID_SOCKET;
     }
 
-    printf("Conectado al servidor %s:%d\n", SERVER_IP, PORT);
+    printw("Conectado al servidor %s:%d\n", SERVER_IP, PORT);
 
     char nombreUsuario[BUFFER_SIZE];
     char respuesta[BUFFER_SIZE];
     int flag = 1;
 
-    while (flag == 1)
+    while(flag == 1)
     {
-        printf("Ingrese su nombre de usuario:\n> ");
-        if (fgets(nombreUsuario, sizeof(nombreUsuario), stdin) == NULL)
+        printw("Ingrese su nombre de usuario:\n> ");
+        refresh();
+//        fgets(nombreUsuario, sizeof(nombreUsuario), stdin) == NULL
+        if(getnstr(nombreUsuario, sizeof(nombreUsuario) - 1) == ERR)
         {
-            printf("Error al leer el nombre de usuario, intenta de nuevo.\n");
+            printw("Error al leer el nombre de usuario, intenta de nuevo.\n");
+            refresh();
             continue;
         }
 
         nombreUsuario[strcspn(nombreUsuario, "\n")] = 0;
         eliminarEspaciosAlInicioYFin(nombreUsuario);
 
-        if (strlen(nombreUsuario) == 0)
+        if(strlen(nombreUsuario) == 0)
         {
-            printf("El nombre de usuario no puede estar vacio.\n");
+            printw("El nombre de usuario no puede estar vacio.\n");
+            refresh();
             continue;
         }
         flag = 0;
     }
 
-    if (enviarPeticion(sock, nombreUsuario, respuesta) == 0)
-        printf("[Servidor]: %s\n", respuesta);
+    if(enviarPeticion(sock, nombreUsuario, respuesta) == 0)
+        printw("[Servidor]: %s\n", respuesta);
     else
-        printf("Error al enviar o recibir datos del servidor.\n");
+        printw("Error al enviar o recibir datos del servidor.\n");
+
+    refresh();
+    napms(TIEMPO_MENSAJE * 2);
 
     return sock;
 }

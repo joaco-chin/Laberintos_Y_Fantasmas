@@ -1,17 +1,15 @@
 #include "principal_menu.h"
 #include <stdio.h>
-#include <winsock2.h>
 #include <windows.h> // para limpiar consola
-#include <conio.h>   // para getch()
 #include "codigosRet.h"
 #include "principal_partida.h"
 #include "interno_cliente.h"
 #include "interno_jugador.h"
 
-void menuPrincipal()
+void menuPrincipal(SOCKET sock, int altoStdscr, int anchoStdscr)
 {
     int pos = 0;
-    char tecla;
+    int tecla;
     char matPantalla[CANT_OPCIONES_PRINCIPAL][TAM_PAL_OPCION] =
     {
         "-> Nueva Partida",
@@ -19,79 +17,69 @@ void menuPrincipal()
         "   Dificultad",
         "   Salir",
     };
-    SOCKET sock = clienteConectarAlServidor();
 
-    puts("******LABERINTOS Y FANTASMAS******");
-    putchar('\n');
-    printf("\t- Presione enter -\t\n");
+    dibujarTitulos(altoStdscr, anchoStdscr);
+
     tecla = getch();
-    while (tecla != ENTER)
+    while(tecla != ENTER)
+    {
         tecla = getch();
+    }
 
-    system("cls");
-    mostrarMenu(matPantalla, CANT_OPCIONES_PRINCIPAL);
+    dibujarMenu(matPantalla, CANT_OPCIONES_PRINCIPAL, SIN_TITULO, altoStdscr, anchoStdscr);
 
     while (!(pos == SALIR && tecla == ENTER))
     {
         tecla = getch();
-        system("cls");
 
-        if(tecla == ABAJO || tecla == ARRIBA)
+        if(tecla == KEY_DOWN || tecla == KEY_UP)
         {
-            actualizarMenu(matPantalla, CANT_OPCIONES_PRINCIPAL, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
+            actualizarMenu(matPantalla, CANT_OPCIONES_PRINCIPAL, &pos, pos + (tecla == KEY_DOWN) - (tecla == KEY_UP));
         }
 
         if (pos != SALIR && tecla == ENTER)
         {
-            puts("Cargando...");
             if (pos == 0)
             {
-                system("cls");
-                configuracionPartida(sock);
+                configuracionPartida(sock, altoStdscr, anchoStdscr);
             }
 
             else if(pos == 1)
             {
-                system("cls");
                 verRanking(sock);
             }
 
             else if(pos == 2)
             {
-                system("cls");
-                menuDeDificultad();
+                menuDeDificultad(altoStdscr, anchoStdscr);
             }
         }
 
-        mostrarMenu(matPantalla, CANT_OPCIONES_PRINCIPAL);
+        dibujarMenu(matPantalla, CANT_OPCIONES_PRINCIPAL, SIN_TITULO, altoStdscr, anchoStdscr);
     }
 }
 
-int menuDeConfirmacion()
+int menuDeConfirmacion(int altoStdscr, int anchoStdscr)
 {
     int pos = 0;
-    char tecla;
+    int tecla;
     char matrizPantalla[CANT_OPCIONES_CONFIRMACION][TAM_PAL_OPCION] =
     {
         "-> No",
         "   Si"
     };
 
-    system("cls");
-    puts("Seguro que desea salir? Su partida se tomara como perdida");
-    mostrarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION);
+    dibujarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, "Seguro que desea salir? Su partida se tomara como perdida\n", altoStdscr, anchoStdscr);
     tecla = getch();
 
     while(tecla != ESC && tecla != ENTER)
     {
-        if(tecla == ABAJO || tecla == ARRIBA)
+        if(tecla == KEY_DOWN || tecla == KEY_UP)
         {
-            actualizarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
+            actualizarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, &pos, pos + (tecla == KEY_DOWN) - (tecla == KEY_UP));
         }
 
-        system("cls");
-        puts("Seguro que desea salir? Su partida se tomara como perdida");
-        mostrarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION);
+        dibujarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, "Seguro que desea salir? Su partida se tomara como perdida\n", altoStdscr, anchoStdscr);
         tecla = getch();
     }
 
@@ -103,10 +91,10 @@ int menuDeConfirmacion()
     return TERMINAR;
 }
 
-int menuDePausa()
+int menuDePausa(int altoStdscr, int anchoStdscr)
 {
     int pos = 0;
-    char tecla;
+    int tecla;
     char matrizPantalla[CANT_OPCIONES_PAUSA][TAM_PAL_OPCION] =
     {
         "-> Volver al juego",
@@ -114,27 +102,23 @@ int menuDePausa()
     };
     int salida = REANUDAR;
 
-    system("cls");
-    puts("*PAUSA*");
-    mostrarMenu(matrizPantalla, CANT_OPCIONES_PAUSA);
+    dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- PAUSA -", altoStdscr, anchoStdscr);
     tecla = getch();
     while(salida == REANUDAR && !(tecla == ESC || (pos == 0 && tecla == ENTER)))
     {
         if(pos == 1 && tecla == ENTER)
         {
-            salida = menuDeConfirmacion();
+            salida = menuDeConfirmacion(altoStdscr, anchoStdscr);
         }
 
-        else if(tecla == ABAJO || tecla == ARRIBA)
+        else if(tecla == KEY_DOWN || tecla == KEY_UP)
         {
-            actualizarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
+            actualizarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, &pos, pos + (tecla == KEY_DOWN) - (tecla == KEY_UP));
         }
 
         if(salida == REANUDAR)
         {
-            system("cls");
-            puts("*PAUSA*");
-            mostrarMenu(matrizPantalla, CANT_OPCIONES_PAUSA);
+            dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- PAUSA -", altoStdscr, anchoStdscr);
             tecla = getch();
         }
     }
@@ -142,10 +126,10 @@ int menuDePausa()
     return salida;
 }
 
-int subMenuDeDificultad()
+int subMenuDeDificultad(int altoStdscr, int anchoStdscr)
 {
     int pos = OPCION_NORMAL;
-    char tecla;
+    int tecla;
     char matrizPantalla[CANT_OPCIONES_DIFICULTAD][TAM_PAL_OPCION] =
     {
         "   Facil",
@@ -159,20 +143,17 @@ int subMenuDeDificultad()
         return ERR_ARCHIVO;
     }
 
-    system("cls");
-    puts("DIFICULTAD");
-    mostrarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD);
+    dibujarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD, "- DIFICULTAD -", altoStdscr, anchoStdscr);
     tecla = getch();
 
     while(tecla != ENTER)
     {
-        if(tecla == ABAJO || tecla == ARRIBA)
+        if(tecla == KEY_DOWN || tecla == KEY_UP)
         {
-            actualizarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
+            actualizarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD, &pos, pos + (tecla == KEY_DOWN) - (tecla == KEY_UP));
         }
-        system("cls");
-        puts("DIFICULTAD");
-        mostrarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD);
+
+        dibujarMenu(matrizPantalla, CANT_OPCIONES_DIFICULTAD, "- DIFICULTAD -", altoStdscr, anchoStdscr);
         tecla = getch();
     }
 
@@ -196,9 +177,9 @@ int subMenuDeDificultad()
     return TODO_OK;
 }
 
-void menuDeDificultad()
+void menuDeDificultad(int altoStdscr, int anchoStdscr)
 {
-    char tecla;
+    int tecla;
     int pos = 0;
     char matrizPantalla[CANT_OPCIONES_PAUSA][TAM_PAL_OPCION] =
     {
@@ -206,31 +187,27 @@ void menuDeDificultad()
         "   Volver al menu principal"
     };
 
-    system("cls");
-    puts("DIFICULTAD");
-    mostrarMenu(matrizPantalla, CANT_OPCIONES_PAUSA);
+    dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- DIFICULTAD -", altoStdscr, anchoStdscr);
     tecla = getch();
 
     while(!(pos == 1 && tecla == ENTER))
     {
         if(pos == 0 && tecla == ENTER)
         {
-            if(subMenuDeDificultad() == ERR_ARCHIVO)
+            if(subMenuDeDificultad(altoStdscr, anchoStdscr) == ERR_ARCHIVO)
             {
                 fprintf(stderr, "Error en la apertura del archivo\n");
             }
         }
 
-        if(tecla == ARRIBA || tecla == ABAJO)
+        if(tecla == KEY_UP || tecla == KEY_DOWN)
         {
-            actualizarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, &pos, pos + (tecla == ABAJO) - (tecla == ARRIBA));
+            actualizarMenu(matrizPantalla, CANT_OPCIONES_CONFIRMACION, &pos, pos + (tecla == KEY_DOWN) - (tecla == KEY_UP));
         }
-        system("cls");
-        puts("DIFICULTAD");
-        mostrarMenu(matrizPantalla, CANT_OPCIONES_PAUSA);
+
+        dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- DIFICULTAD -", altoStdscr, anchoStdscr);
         tecla = getch();
     }
-    system("cls");
 }
 
 void actualizarMenu(char matriz[][TAM_PAL_OPCION], int cf, int *posAct, int posNueva)

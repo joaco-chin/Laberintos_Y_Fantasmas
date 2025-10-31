@@ -1,13 +1,12 @@
 #include "principal_partida.h"
 #include <stdio.h>
 #include <windows.h> // Para limpiar la consola system("cls")
-#include <conio.h>   // para getch()
 #include "codigosRet.h"
 #include "principal_menu.h"
 #include "interno_fantasma.h"
 #include "estructuras_lista.h"
 
-int configuracionPartida(SOCKET sockCliente)
+int configuracionPartida(SOCKET sockCliente, int altoStdscr, int anchoStdscr)
 {
     tConfig conf;
     char linea[TAM_LINEA_CONF];
@@ -40,12 +39,13 @@ int configuracionPartida(SOCKET sockCliente)
     // guarda la matriz en "laberinto.txt"
     escribirMatrizEnArchivoTxt(matLab, "laberinto.txt", conf.fil, conf.col);
 
-    resultado = ejecucionPartida(matLab, &conf, sockCliente, &colaFantasmas, entradaYSalida);
+    resultado = ejecucionPartida(matLab, &conf, sockCliente, &colaFantasmas, entradaYSalida, anchoStdscr, altoStdscr);
     if (resultado == PARTIDA_PERDIDA)
     {
-        puts("****Game Over****");
-        Sleep(TIEMPO_MENSAJE);
-        system("cls");
+        clear();
+        mvprintw(0, 0, "- Game Over -");
+        refresh();
+        napms(TIEMPO_MENSAJE);
     }
 
     matrizDestruir((void **)matLab, conf.fil);
@@ -145,7 +145,7 @@ int configuracionPartida(SOCKET sockCliente)
 //    return PARTIDA_GANADA;
 //}
 
-int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *colaFantasmas, tPosicion entradaYSalida[])
+int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *colaFantasmas, tPosicion entradaYSalida[], int altoStdscr, int anchoStdscr)
 {
     tJugador jug = {entradaYSalida[0].fila, entradaYSalida[0].columna, conf->vidasInicio, 0, 0};
     //|jug.fil = -1|jug.col = -1|jug.vidas = conf->vidasInicio|jug.puntos = 0 |jug.cantMovimientos = 0|
@@ -154,24 +154,22 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
     tCola registro;    // Cola para guardar el registro de los movimientos del jugador
     int bonificacion = determinarBonificacion(conf->dificultad);
 
-    dibujarInicioPantalla(matriz, conf->fil, conf->col);
+    dibujarInicioPartida(matriz, conf->fil, conf->col);
     matrizRemplazarCaracterEnPosicion(matriz, JUGADOR, jug.posFil, jug.posCol, conf->fil, conf->col);
     colaCrear(&movimientos);
     colaCrear(&registro);
 
     while (salida != TERMINAR && matriz[jug.posFil][jug.posCol] != matriz[entradaYSalida[1].fila][entradaYSalida[1].columna])
     {
-        salida = procesarAccionDeJugador(matriz, conf->fil, conf->col, &jug, &registro);
+        salida = procesarAccionDeJugador(matriz, conf->fil, conf->col, &jug, &registro, altoStdscr, anchoStdscr);
 
         if (salida == REANUDAR)
         {
             salida = procesarEventosDePartida(matriz, conf, &jug, colaFantasmas, &movimientos, entradaYSalida);
-            dibujarPantalla(matriz, conf->fil, conf->col, conf->dificultad, jug.vidas, jug.puntos);
-            //            printf("Bonificacion: %d\n", bonificacion);
+            dibujarPartida(matriz, conf->fil, conf->col, conf->dificultad, jug.vidas, jug.puntos);
         }
-        Sleep(TIEMPO_FRAME);
+
     }
-    system("cls");
 
     if (salida == TERMINAR)
     {
@@ -180,19 +178,24 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
         return PARTIDA_PERDIDA;
     }
 
-    printf("Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d\n", jug.puntos, bonificacion, jug.puntos * bonificacion, jug.cantMovimientos);
-    Sleep(TIEMPO_MENSAJE);
+    clear();
+    mvprintw(0, 0, "Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d", jug.puntos, bonificacion, jug.puntos * bonificacion, jug.cantMovimientos);
+    refresh();
+    napms(TIEMPO_MENSAJE);
+
+//    dibujarMensaje("Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d");
 
     if (sockCliente != INVALID_SOCKET)
     {
         char mensaje[BUFFER_SIZE];
         sprintf(mensaje, "GUARDAR_PUNTUACION|%d|%d|%s", jug.puntos * bonificacion, jug.cantMovimientos, conf->dificultad);
         char respuesta[BUFFER_SIZE];
-        char tecla;
+        int tecla;
         if (enviarPeticion(sockCliente, mensaje, respuesta) == 0)
         {
-            printf("[Servidor]: %s\n", respuesta);
-            printf("->  Volver");
+            clear();
+            mvprintw(0, 0, "[Servidor]: %s\n", respuesta);
+            mvprintw(0, 0, "->  Volver");
             tecla = getch();
             while (tecla != ENTER)
             {
@@ -200,26 +203,32 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
             }
         }
         else
-            printf("Error al enviar o recibir datos del servidor.\n");
+            mvprintw(0, 0, "Error al enviar o recibir datos del servidor.\n");
+
+        refresh();
     }
     else
     {
-        printf("No se pudo guardar la puntuacion, no hay conexion con el servidor.\n");
+        clear();
+        mvprintw(0, 0, "No se pudo guardar la puntuacion, no hay conexion con el servidor.\n");
+        refresh();
+        napms(TIEMPO_MENSAJE);
+//        dibujarMensaje("No se pudo guardar la puntuacion, no hay conexion con el servidor");
     }
 
-    system("cls");
     colaVaciar(&movimientos);
     colaVaciar(&registro);
     return PARTIDA_GANADA;
 }
 
-int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tCola *registro)
+int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tCola *registro, int altoStdscr, int anchoStdscr)
 {
-    char tecla = ingresarTeclaDeJugador(TIEMPO_INPUT);
+//    char tecla = ingresarTeclaDeJugador(TIEMPO_INPUT);
+    int tecla = getch();
 
-    if (tecla == ESC)
+    if(tecla == ESC)
     {
-        if (menuDePausa() != REANUDAR)
+        if (menuDePausa(altoStdscr, anchoStdscr) != REANUDAR)
         {
             return TERMINAR;
         }
@@ -227,7 +236,7 @@ int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tCola 
     else if (ES_MOVIMIENTO(tecla))
     {
         matrizActualizarPosicionDeJugador(matriz, cf, cc, jug,
-                                          jug->posFil + (tecla == ABAJO) - (tecla == ARRIBA), jug->posCol + (tecla == DERECHA) - (tecla == IZQUIERDA));
+                                          jug->posFil + (tecla == KEY_DOWN) - (tecla == KEY_UP), jug->posCol + (tecla == KEY_RIGHT) - (tecla == KEY_LEFT));
         jug->cantMovimientos++;
         colaEncolar(registro, jug, sizeof(tJugador));
     }
@@ -304,33 +313,19 @@ int determinarBonificacion(const char *dif)
     return BONIFICACION_FACIL;
 }
 
-void dibujarInicioPantalla(char **matriz, int cc, int cf)
-{
-    printf("Presione una tecla para comenzar, finaliza con ESC\n\n");
-    matrizMostrar(matriz, cc, cf);
-    Sleep(TIEMPO_MENSAJE);
-}
-
-void dibujarPantalla(char **matriz, int cc, int cf, const char *dificultad, int vidas, int puntos)
-{
-    system("cls");
-    //    printf("Dificultad: %s\n", dificultad);
-    printf("Vidas: %d\n", vidas);
-    printf("Puntos: %d\n", puntos);
-    matrizMostrar(matriz, cc, cf);
-}
-
 void verRanking(SOCKET sockCliente)
 {
     char respuesta[BUFFER_SIZE];
-    char tecla;
+    int tecla;
 
+    clear();
     if (sockCliente != INVALID_SOCKET)
     {
         if (enviarPeticion(sockCliente, "VER_RANKING", respuesta) == 0)
         {
-            printf("[Servidor]:\n%s\n", respuesta);
-            printf("->  Volver");
+            mvprintw(0, 0, "[Servidor]:\n%s\n", respuesta);
+            mvprintw(0, 0, "->  Volver");
+            refresh();
             tecla = getch();
             while (tecla != ENTER)
             {
@@ -339,14 +334,13 @@ void verRanking(SOCKET sockCliente)
         }
         else
         {
-            printf("Error al enviar o recibir datos del servidor.\n");
-            Sleep(TIEMPO_MENSAJE);
+            fprintf(stderr, "Error al enviar o recibir datos del servidor.\n");
         }
     }
     else
     {
-        printf("No se puede ver el ranking, no hay conexion con el servidor.\n");
-        Sleep(TIEMPO_MENSAJE);
+        mvprintw(0, 0, "Error al enviar o recibir datos del servidor.\n");
+        refresh();
+        napms(TIEMPO_MENSAJE);
     }
-    system("cls");
 }

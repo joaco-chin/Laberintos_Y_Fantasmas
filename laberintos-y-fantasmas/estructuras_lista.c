@@ -184,7 +184,7 @@ void listaVaciar(tLista* pl)
     while(*pl)
     {
         elim = *pl;
-        pl = &(*pl)->sig;
+        *pl = elim->sig;
         free(elim->info);
         free(elim);
     }

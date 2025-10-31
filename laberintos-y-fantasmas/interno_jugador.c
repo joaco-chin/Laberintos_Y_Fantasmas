@@ -3,39 +3,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <conio.h>
 #include <windows.h>
 #include "principal_menu.h"
 #include "interno_matriz.h"
 #include "interno_laberinto.h"
 
-int ingresarMovimiento() // Funcion hecha para solucionar el problema del doble movimiento
-{
-    int entrada = getch();
-    if(entrada == 0 || entrada == 224)
-    {
-        entrada = getch();
-    }
-    return entrada;
-}
-
-char ingresarTeclaDeJugador(unsigned periodo)
-{
-    clock_t temp = clock() + periodo;
-    char entrada = 0;
-
-    fflush(stdin);
-    while(temp > clock())
-    {
-        if(kbhit())
-        {
-            entrada = (char)ingresarMovimiento();
-            return entrada;
-        }
-    }
-
-    return entrada;
-}
+//int ingresarMovimiento() // Funcion hecha para solucionar el problema del doble movimiento
+//{
+//    int entrada = getch();
+//    if(entrada == 0 || entrada == 224)
+//    {
+//        entrada = getch();
+//    }
+//    return entrada;
+//}
+//
+//char ingresarTeclaDeJugador(unsigned periodo)
+//{
+//    clock_t temp = clock() + periodo;
+//    char entrada = 0;
+//
+//    fflush(stdin);
+//    while(temp > clock())
+//    {
+//        if(kbhit())
+//        {
+//            entrada = (char)ingresarMovimiento();
+//            return entrada;
+//        }
+//    }
+//
+//    return entrada;
+//}
 
 void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna)
 {
