@@ -6,6 +6,7 @@
 #include "interno_cliente.h"
 #include "interno_jugador.h"
 #include "interno_laberinto.h"
+#include "interno_pantalla.h"
 #include "estructuras_cola.h"
 
 // Resultados de la partida
@@ -13,8 +14,6 @@
 #define PARTIDA_PERDIDA 0
 // Tiempos de los eventos durante la ejecución
 #define TIEMPO_INPUT 100
-#define TIEMPO_FRAME 100
-#define TIEMPO_MENSAJE 1000
 // Bonificaciones por dificultad
 #define BONIFICACION_FACIL 1
 #define BONIFICACION_NORMAL 5

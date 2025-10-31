@@ -13,9 +13,11 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="C:/Tools/PDCurses-3.9" />
 				</Compiler>
 				<Linker>
 					<Add library="ws2_32" />
+					<Add library="C:/Tools/PDCurses-3.9/wincon/pdcurses.a" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -69,6 +71,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="interno_matriz.h" />
+		<Unit filename="interno_pantalla.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="interno_pantalla.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>

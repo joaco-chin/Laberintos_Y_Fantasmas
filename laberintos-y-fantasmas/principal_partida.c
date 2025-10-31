@@ -1,7 +1,6 @@
 #include "principal_partida.h"
 #include <stdio.h>
 #include <windows.h> // Para limpiar la consola system("cls")
-#include <conio.h>   // para getch()
 #include "codigosRet.h"
 #include "principal_menu.h"
 #include "interno_fantasma.h"
@@ -43,9 +42,10 @@ int configuracionPartida(SOCKET sockCliente)
     resultado = ejecucionPartida(matLab, &conf, sockCliente, &colaFantasmas, entradaYSalida);
     if (resultado == PARTIDA_PERDIDA)
     {
-        puts("****Game Over****");
-        Sleep(TIEMPO_MENSAJE);
-        system("cls");
+        clear();
+        mvprintw(0, 0, "- Game Over -");
+        refresh();
+        napms(TIEMPO_MENSAJE);
     }
 
     matrizDestruir((void **)matLab, conf.fil);
@@ -154,7 +154,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
     tCola registro;    // Cola para guardar el registro de los movimientos del jugador
     int bonificacion = determinarBonificacion(conf->dificultad);
 
-    dibujarInicioPantalla(matriz, conf->fil, conf->col);
+    dibujarInicioPartida(matriz, conf->fil, conf->col);
     matrizRemplazarCaracterEnPosicion(matriz, JUGADOR, jug.posFil, jug.posCol, conf->fil, conf->col);
     colaCrear(&movimientos);
     colaCrear(&registro);
@@ -166,12 +166,10 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
         if (salida == REANUDAR)
         {
             salida = procesarEventosDePartida(matriz, conf, &jug, colaFantasmas, &movimientos, entradaYSalida);
-            dibujarPantalla(matriz, conf->fil, conf->col, conf->dificultad, jug.vidas, jug.puntos);
-            //            printf("Bonificacion: %d\n", bonificacion);
+            dibujarPartida(matriz, conf->fil, conf->col, conf->dificultad, jug.vidas, jug.puntos);
         }
-        Sleep(TIEMPO_FRAME);
+
     }
-    system("cls");
 
     if (salida == TERMINAR)
     {
@@ -180,8 +178,12 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
         return PARTIDA_PERDIDA;
     }
 
-    printf("Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d\n", jug.puntos, bonificacion, jug.puntos * bonificacion, jug.cantMovimientos);
-    Sleep(TIEMPO_MENSAJE);
+    clear();
+    mvprintw(0, 0, "Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d", jug.puntos, bonificacion, jug.puntos * bonificacion, jug.cantMovimientos);
+    refresh();
+    napms(TIEMPO_MENSAJE);
+
+//    dibujarMensaje("Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d");
 
     if (sockCliente != INVALID_SOCKET)
     {
@@ -204,10 +206,13 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
     }
     else
     {
-        printf("No se pudo guardar la puntuacion, no hay conexion con el servidor.\n");
+//        clear();
+//        mvprintw(0, 0, "No se pudo guardar la puntuacion, no hay conexion con el servidor.\n");
+//        refresh();
+//        napms(TIEMPO_MENSAJE);
+//        dibujarMensaje("No se pudo guardar la puntuacion, no hay conexion con el servidor");
     }
 
-    system("cls");
     colaVaciar(&movimientos);
     colaVaciar(&registro);
     return PARTIDA_GANADA;
@@ -215,9 +220,10 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
 
 int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tCola *registro)
 {
-    char tecla = ingresarTeclaDeJugador(TIEMPO_INPUT);
+//    char tecla = ingresarTeclaDeJugador(TIEMPO_INPUT);
+    int tecla = getch();
 
-    if (tecla == ESC)
+    if(tecla == ESC)
     {
         if (menuDePausa() != REANUDAR)
         {
@@ -227,7 +233,7 @@ int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tCola 
     else if (ES_MOVIMIENTO(tecla))
     {
         matrizActualizarPosicionDeJugador(matriz, cf, cc, jug,
-                                          jug->posFil + (tecla == ABAJO) - (tecla == ARRIBA), jug->posCol + (tecla == DERECHA) - (tecla == IZQUIERDA));
+                                          jug->posFil + (tecla == KEY_DOWN) - (tecla == KEY_UP), jug->posCol + (tecla == KEY_RIGHT) - (tecla == KEY_LEFT));
         jug->cantMovimientos++;
         colaEncolar(registro, jug, sizeof(tJugador));
     }
@@ -302,22 +308,6 @@ int determinarBonificacion(const char *dif)
     }
 
     return BONIFICACION_FACIL;
-}
-
-void dibujarInicioPantalla(char **matriz, int cc, int cf)
-{
-    printf("Presione una tecla para comenzar, finaliza con ESC\n\n");
-    matrizMostrar(matriz, cc, cf);
-    Sleep(TIEMPO_MENSAJE);
-}
-
-void dibujarPantalla(char **matriz, int cc, int cf, const char *dificultad, int vidas, int puntos)
-{
-    system("cls");
-    //    printf("Dificultad: %s\n", dificultad);
-    printf("Vidas: %d\n", vidas);
-    printf("Puntos: %d\n", puntos);
-    matrizMostrar(matriz, cc, cf);
 }
 
 void verRanking(SOCKET sockCliente)

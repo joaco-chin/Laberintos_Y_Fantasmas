@@ -2,6 +2,7 @@
 #define JUGADOR_H_INCLUDED
 
 #include "principal_archivo.h"
+#include <curses.h>
 
 // Valores ASCII de las teclas
 #define ARRIBA 72
@@ -9,11 +10,12 @@
 #define IZQUIERDA 75
 #define DERECHA 77
 #define ESC 27
-#define ENTER 13
+#define ENTER 10
 
 #define JUGADOR 'J'
 
-#define ES_MOVIMIENTO(x)((x) == ARRIBA || (x) == ABAJO || (x) == IZQUIERDA || (x) == DERECHA ? 1 : 0)
+//#define ES_MOVIMIENTO(x)((x) == ARRIBA || (x) == ABAJO || (x) == IZQUIERDA || (x) == DERECHA ? 1 : 0)
+#define ES_MOVIMIENTO(x)((x) == KEY_UP || (x) == KEY_DOWN || (x) == KEY_LEFT || (x) == KEY_RIGHT ? 1 : 0)
 
 typedef struct
 {

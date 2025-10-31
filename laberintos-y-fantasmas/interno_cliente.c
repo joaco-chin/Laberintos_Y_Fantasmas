@@ -1,24 +1,30 @@
 #include "interno_cliente.h"
 #include <stdio.h>
 #include <string.h>
+#include <curses.h>
+#include <windows.h>
 
 SOCKET clienteConectarAlServidor()
 {
     if (iniciarWinsock() != 0)
     {
-        printf("Error al iniciar Winsock.\n");
+        printw("Error al iniciar Winsock.\n");
+        refresh();
         return INVALID_SOCKET;
     }
 
     SOCKET sock = conectarAlServidor(SERVER_IP, PORT);
-    if (sock == INVALID_SOCKET)
+    if(sock == INVALID_SOCKET)
     {
-        printf("Error al conectar al servidor.\n");
+        printw("Error al conectar al servidor.\n");
+        refresh();
+        napms(200);
         WSACleanup();
         return INVALID_SOCKET;
     }
 
-    printf("Conectado al servidor %s:%d\n", SERVER_IP, PORT);
+    printw("Conectado al servidor %s:%d\n", SERVER_IP, PORT);
+    refresh();
 
     char nombreUsuario[BUFFER_SIZE];
     char respuesta[BUFFER_SIZE];
@@ -26,10 +32,12 @@ SOCKET clienteConectarAlServidor()
 
     while (flag == 1)
     {
-        printf("Ingrese su nombre de usuario:\n> ");
+        printw("Ingrese su nombre de usuario:\n> ");
+        refresh();
         if (fgets(nombreUsuario, sizeof(nombreUsuario), stdin) == NULL)
         {
-            printf("Error al leer el nombre de usuario, intenta de nuevo.\n");
+            printw("Error al leer el nombre de usuario, intenta de nuevo.\n");
+            refresh();
             continue;
         }
 
@@ -38,16 +46,19 @@ SOCKET clienteConectarAlServidor()
 
         if (strlen(nombreUsuario) == 0)
         {
-            printf("El nombre de usuario no puede estar vacio.\n");
+            printw("El nombre de usuario no puede estar vacio.\n");
+            refresh();
             continue;
         }
         flag = 0;
     }
 
     if (enviarPeticion(sock, nombreUsuario, respuesta) == 0)
-        printf("[Servidor]: %s\n", respuesta);
+        printw("[Servidor]: %s\n", respuesta);
     else
-        printf("Error al enviar o recibir datos del servidor.\n");
+        printw("Error al enviar o recibir datos del servidor.\n");
+
+    refresh();
 
     return sock;
 }

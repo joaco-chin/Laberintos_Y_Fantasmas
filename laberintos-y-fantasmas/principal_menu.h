@@ -1,6 +1,8 @@
 #ifndef MENU_H_INCLUDED
 #define MENU_H_INCLUDED
 
+#include "interno_pantalla.h"
+
 #define CANT_OPCIONES_PAUSA 2
 #define CANT_OPCIONES_CONFIRMACION 2
 
@@ -21,8 +23,6 @@
 // Estado de Menu
 #define REANUDAR 3
 #define TERMINAR 0
-
-#define TAM_PAL_OPCION 50
 
 void actualizarMenu(char matriz[][TAM_PAL_OPCION], int cf, int *posAct, int posNueva);
 void mostrarMenu(char matriz[][TAM_PAL_OPCION], int filas);

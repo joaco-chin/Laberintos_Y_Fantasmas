@@ -38,6 +38,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="estructuras_arbol.h" />
+		<Unit filename="estructuras_lista.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="estructuras_lista.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
