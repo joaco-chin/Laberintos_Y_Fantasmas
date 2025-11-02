@@ -14,14 +14,14 @@ int main()
     int altoStdscr, anchoStdscr;
 
     srand(time(NULL));
-    initscr(); // Inicializa la pantalla de curses.h y asigna memoria
+    initscr();            // Inicializa la pantalla de curses.h y asigna memoria
     keypad(stdscr, true); // Habilita el uso del keypad para la pantalla est�ndar
-    curs_set(0); // Oculta el cursor
+    curs_set(0);          // Oculta el cursor
     getmaxyx(stdscr, altoStdscr, anchoStdscr);
 
     sock = clienteConectarAlServidor();
 
-//    nodelay(stdscr, true);
+    // nodelay(stdscr, true);
     noecho(); //
 
     timeout(TIEMPO_FRAME);
@@ -29,5 +29,7 @@ int main()
 
     refresh();
     endwin(); // Finaliza la pantalla de curses.h y libera memoria
+    cerrarConexion(sock);
+
     return 0;
 }
