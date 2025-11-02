@@ -46,7 +46,8 @@ int llenarListaPosicionesLibresParedes(char **matriz, int filas, int columnas, t
 int llenarListaPosicionesLibres(char **matriz, int filas, int columnas, tLista *lista);
 int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int columnas, char caracter, int cantidadCar, tCola* colaFantasmas);
 void generarEntradaYSalida(char **matriz, int filas, int columnas, tPosicion *posEnt, tPosicion *posSal);
-void evitarObstrucciones(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal, int maxBloquesPorPared);
+void evitarObstruccionesEsquinas(char **matriz, int filas, int columnas, int maxBloquesPorPared);
+void evitarObstruccionesEntradaSalida(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal, int maxBloquesPorPared);
 void colocarCaracterEnEsquinasDePosicion(char **matriz, int filas, int columnas, tPosicion pos, char caracter);
 void actualizarCaracterAlrededorDePosicion(char **matriz, int filas, int columnas, tPosicion pos, char car, char nuevoCar, int rango);
 void barajarOrdenDirecciones(int *ordenDirecciones, int n);

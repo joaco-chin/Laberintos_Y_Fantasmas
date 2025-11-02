@@ -9,8 +9,9 @@ void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned 
     int maxBloquesPorPared = 2;
 
     inicializarMatrizCaracter(matriz, filas, columnas, CAMINO);
+    evitarObstruccionesEsquinas(matriz, filas, columnas, maxBloquesPorPared);
     generarEntradaYSalida(matriz, filas, columnas, &posEnt, &posSal);
-    evitarObstrucciones(matriz, filas, columnas, posEnt, posSal, maxBloquesPorPared);
+    evitarObstruccionesEntradaSalida(matriz, filas, columnas, posEnt, posSal, maxBloquesPorPared);
     generarParedesInternas(matriz, filas, columnas, maxBloquesPorPared);
     generarParedesLimite(matriz, filas, columnas, posEnt, posSal);
     colocarCaracteresEspeciales(matriz, filas, columnas, fantasmas, premios, vidasExtra, colaFantasmas);
@@ -22,35 +23,36 @@ void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned 
 
 void generarParedesLimite(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal)
 {
-    // Paredes verticales (izquierda y derecha)
-    for (int i = 0; i < filas; i++)
-    {
-        // Pared izquierda - no pisar entrada ni salida
-        if (!(i == posEnt.fila && 0 == posEnt.columna) && !(i == posSal.fila && 0 == posSal.columna))
-        {
-            matriz[i][0] = PARED;
-        }
+    if (filas <= 0 || columnas <= 0)
+        return;
 
-        // Pared derecha - no pisar entrada ni salida
-        if (!(i == posEnt.fila && (columnas - 1) == posEnt.columna) && !(i == posSal.fila && (columnas - 1) == posSal.columna))
+    // Fila superior (0)
+    for (int j = 0; j < columnas; j++)
+    {
+        if (!((0 == posEnt.fila && j == posEnt.columna) || (0 == posSal.fila && j == posSal.columna)))
+            matriz[0][j] = PARED;
+    }
+
+    // Fila inferior (filas-1)
+    if (filas > 1)
+    {
+        for (int j = 0; j < columnas; j++)
         {
-            matriz[i][columnas - 1] = PARED;
+            if (!(((filas - 1) == posEnt.fila && j == posEnt.columna) || ((filas - 1) == posSal.fila && j == posSal.columna)))
+                matriz[filas - 1][j] = PARED;
         }
     }
 
-    // Paredes horizontales (arriba y abajo)
-    for (int j = 1; j < columnas - 1; j++)
+    // Columna izquierda (0) y columna derecha (columnas-1)
+    for (int i = 0; i < filas; i++)
     {
-        // Pared superior - no pisar entrada ni salida
-        if (!(0 == posEnt.fila && j == posEnt.columna) && !(0 == posSal.fila && j == posSal.columna))
-        {
-            matriz[0][j] = PARED;
-        }
+        if (!((i == posEnt.fila && 0 == posEnt.columna) || (i == posSal.fila && 0 == posSal.columna)))
+            matriz[i][0] = PARED;
 
-        // Pared inferior - no pisar entrada ni salida
-        if (!((filas - 1) == posEnt.fila && j == posEnt.columna) && !((filas - 1) == posSal.fila && j == posSal.columna))
+        if (columnas > 1)
         {
-            matriz[filas - 1][j] = PARED;
+            if (!((i == posEnt.fila && (columnas - 1) == posEnt.columna) || (i == posSal.fila && (columnas - 1) == posSal.columna)))
+                matriz[i][columnas - 1] = PARED;
         }
     }
 }
@@ -154,9 +156,8 @@ void generarEntradaYSalida(char **matriz, int filas, int columnas, tPosicion *po
     matriz[posSal->fila][posSal->columna] = SALIDA;
 }
 
-void evitarObstrucciones(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal, int maxBloquesPorPared)
+void evitarObstruccionesEsquinas(char **matriz, int filas, int columnas, int maxBloquesPorPared)
 {
-    // evita obstrucciones en las esquinas de la matriz
     for (int j = 0; j <= maxBloquesPorPared; j++)
     {
         matriz[0][j] = PARED;
@@ -164,7 +165,10 @@ void evitarObstrucciones(char **matriz, int filas, int columnas, tPosicion posEn
         matriz[filas - 1][j] = PARED;
         matriz[filas - 1][columnas - 1 - j] = PARED;
     }
+}
 
+void evitarObstruccionesEntradaSalida(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal, int maxBloquesPorPared)
+{
     colocarCaracterEnEsquinasDePosicion(matriz, filas, columnas, posEnt, PARED);
     colocarCaracterEnEsquinasDePosicion(matriz, filas, columnas, posSal, PARED);
     actualizarCaracterAlrededorDePosicion(matriz, filas, columnas, posEnt, CAMINO, PARED_RANGO_ENTRADA, maxBloquesPorPared + 1);
