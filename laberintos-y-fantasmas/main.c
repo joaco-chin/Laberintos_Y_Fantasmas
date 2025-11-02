@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <winsock2.h>
+#include "../comun/compat_curses.h"
 #include "principal_menu.h"
 #include "interno_cliente.h"
-#include "../comun/compat_curses.h"
 
 #define TIEMPO_FRAME 500
 
