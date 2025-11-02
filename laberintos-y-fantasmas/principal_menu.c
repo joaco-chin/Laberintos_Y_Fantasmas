@@ -1,6 +1,6 @@
 #include "principal_menu.h"
 #include <stdio.h>
-#include <windows.h> // para limpiar consola
+// #include <windows.h> // para limpiar consola
 #include "codigosRet.h"
 #include "principal_partida.h"
 #include "interno_cliente.h"

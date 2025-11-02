@@ -12,6 +12,7 @@ typedef tNodo* tLista;
 void listaCrear(tLista* pl);
 int listaEstaVacia(const tLista* pl);
 int listaInsertarAlInicio(tLista* pl, const void* info, unsigned tamInfo);
+int listaInsertarAlFinal(tLista *pl, const void *info, unsigned tamInfo);
 int listaInsertarOrdenado(tLista* pl, const void* info, unsigned tamInfo, Cmp cmpNodos);
 int listaBuscarMenor(const tLista* pl, Cmp cmpNodos);
 int listaBuscarPorClave(const tLista* pl, void* clave, Cmp cmpNodos);

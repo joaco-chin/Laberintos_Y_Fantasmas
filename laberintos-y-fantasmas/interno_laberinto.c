@@ -3,14 +3,15 @@
 #include "codigosRet.h"
 
 void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios,
-unsigned *vidasExtra, tCola* colaFantasmas, tPosicion entradaYsalida[])
+                               unsigned *vidasExtra, tCola *colaFantasmas, tPosicion entradaYsalida[])
 {
     tPosicion posEnt, posSal;
     int maxBloquesPorPared = 2;
 
     inicializarMatrizCaracter(matriz, filas, columnas, CAMINO);
+    evitarObstruccionesEsquinas(matriz, filas, columnas, maxBloquesPorPared);
     generarEntradaYSalida(matriz, filas, columnas, &posEnt, &posSal);
-    evitarObstrucciones(matriz, filas, columnas, posEnt, posSal, maxBloquesPorPared);
+    evitarObstruccionesEntradaSalida(matriz, filas, columnas, posEnt, posSal, maxBloquesPorPared);
     generarParedesInternas(matriz, filas, columnas, maxBloquesPorPared);
     generarParedesLimite(matriz, filas, columnas, posEnt, posSal);
     colocarCaracteresEspeciales(matriz, filas, columnas, fantasmas, premios, vidasExtra, colaFantasmas);
@@ -22,35 +23,36 @@ unsigned *vidasExtra, tCola* colaFantasmas, tPosicion entradaYsalida[])
 
 void generarParedesLimite(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal)
 {
-    // Paredes verticales (izquierda y derecha)
-    for (int i = 0; i < filas; i++)
-    {
-        // Pared izquierda - no pisar entrada ni salida
-        if (!(i == posEnt.fila && 0 == posEnt.columna) && !(i == posSal.fila && 0 == posSal.columna))
-        {
-            matriz[i][0] = PARED;
-        }
+    if (filas <= 0 || columnas <= 0)
+        return;
 
-        // Pared derecha - no pisar entrada ni salida
-        if (!(i == posEnt.fila && (columnas - 1) == posEnt.columna) && !(i == posSal.fila && (columnas - 1) == posSal.columna))
+    // Fila superior (0)
+    for (int j = 0; j < columnas; j++)
+    {
+        if (!((0 == posEnt.fila && j == posEnt.columna) || (0 == posSal.fila && j == posSal.columna)))
+            matriz[0][j] = PARED;
+    }
+
+    // Fila inferior (filas-1)
+    if (filas > 1)
+    {
+        for (int j = 0; j < columnas; j++)
         {
-            matriz[i][columnas - 1] = PARED;
+            if (!(((filas - 1) == posEnt.fila && j == posEnt.columna) || ((filas - 1) == posSal.fila && j == posSal.columna)))
+                matriz[filas - 1][j] = PARED;
         }
     }
 
-    // Paredes horizontales (arriba y abajo)
-    for (int j = 1; j < columnas - 1; j++)
+    // Columna izquierda (0) y columna derecha (columnas-1)
+    for (int i = 0; i < filas; i++)
     {
-        // Pared superior - no pisar entrada ni salida
-        if (!(0 == posEnt.fila && j == posEnt.columna) && !(0 == posSal.fila && j == posSal.columna))
-        {
-            matriz[0][j] = PARED;
-        }
+        if (!((i == posEnt.fila && 0 == posEnt.columna) || (i == posSal.fila && 0 == posSal.columna)))
+            matriz[i][0] = PARED;
 
-        // Pared inferior - no pisar entrada ni salida
-        if (!((filas - 1) == posEnt.fila && j == posEnt.columna) && !((filas - 1) == posSal.fila && j == posSal.columna))
+        if (columnas > 1)
         {
-            matriz[filas - 1][j] = PARED;
+            if (!((i == posEnt.fila && (columnas - 1) == posEnt.columna) || (i == posSal.fila && (columnas - 1) == posSal.columna)))
+                matriz[i][columnas - 1] = PARED;
         }
     }
 }
@@ -86,7 +88,7 @@ void generarParedesInternas(char **matriz, int filas, int columnas, int maxBloqu
 
         actualizarCaracterAlrededorDePosicion(matriz, filas, columnas, posActual, PARED_TEMPORAL, PARED, maxBloquesPorPared);
     }
-    listaVaciarREVISAR(&listaPosLibres);
+    listaVaciar(&listaPosLibres);
 }
 
 void barajarOrdenDirecciones(int *ordenDirecciones, int n)
@@ -154,9 +156,8 @@ void generarEntradaYSalida(char **matriz, int filas, int columnas, tPosicion *po
     matriz[posSal->fila][posSal->columna] = SALIDA;
 }
 
-void evitarObstrucciones(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal, int maxBloquesPorPared)
+void evitarObstruccionesEsquinas(char **matriz, int filas, int columnas, int maxBloquesPorPared)
 {
-    // evita obstrucciones en las esquinas de la matriz
     for (int j = 0; j <= maxBloquesPorPared; j++)
     {
         matriz[0][j] = PARED;
@@ -164,7 +165,10 @@ void evitarObstrucciones(char **matriz, int filas, int columnas, tPosicion posEn
         matriz[filas - 1][j] = PARED;
         matriz[filas - 1][columnas - 1 - j] = PARED;
     }
+}
 
+void evitarObstruccionesEntradaSalida(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal, int maxBloquesPorPared)
+{
     colocarCaracterEnEsquinasDePosicion(matriz, filas, columnas, posEnt, PARED);
     colocarCaracterEnEsquinasDePosicion(matriz, filas, columnas, posSal, PARED);
     actualizarCaracterAlrededorDePosicion(matriz, filas, columnas, posEnt, CAMINO, PARED_RANGO_ENTRADA, maxBloquesPorPared + 1);
@@ -196,7 +200,7 @@ void colocarCaracterEnEsquinasDePosicion(char **matriz, int filas, int columnas,
                 matriz[i][j] = caracter;
 }
 
-void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tCola* colaFantasmas)
+void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tCola *colaFantasmas)
 {
     unsigned cantFantasmas = colocarCaracteresEnPosicionesAleatorias(matriz, filas, columnas, FANTASMA, *fantasmas, colaFantasmas);
     if (cantFantasmas != *fantasmas)
@@ -218,7 +222,7 @@ void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigne
     }
 }
 
-int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int columnas, char caracter, int cantidadCar, tCola* colaFantasmas)
+int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int columnas, char caracter, int cantidadCar, tCola *colaFantasmas)
 {
     int k = 0;
     tFantasma fantasma;
@@ -228,7 +232,7 @@ int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int column
     int cantLibres = llenarListaPosicionesLibres(matriz, filas, columnas, &listaPosLibres);
     if (cantLibres == 0)
     {
-        listaVaciarREVISAR(&listaPosLibres);
+        listaVaciar(&listaPosLibres);
         return k;
     }
 
@@ -236,7 +240,7 @@ int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int column
     {
         p = elegirYEliminarPosicionLista(&listaPosLibres, &cantLibres);
         matriz[p.fila][p.columna] = caracter;
-        if(caracter == FANTASMA)
+        if (caracter == FANTASMA)
         {
             fantasma.fil = p.fila;
             fantasma.col = p.columna;
@@ -245,10 +249,10 @@ int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int column
             fantasma.posInicial.fila = p.fila;
             fantasma.posInicial.columna = p.columna;
             colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
-//            printf("fantasma fil: %d|col: %d\n", fantasma.posInicial.fila, fantasma.posInicial.columna);
+            // printf("fantasma fil: %d|col: %d\n", fantasma.posInicial.fila, fantasma.posInicial.columna);
         }
     }
-    listaVaciarREVISAR(&listaPosLibres);
+    listaVaciar(&listaPosLibres);
     return k;
 }
 
@@ -264,7 +268,7 @@ int llenarListaPosicionesLibres(char **matriz, int filas, int columnas, tLista *
             {
                 pos.fila = i;
                 pos.columna = j;
-                if (listaPonerAlFinalREVISAR(lista, &pos, sizeof(tPosicion)) == TODO_OK)
+                if (listaInsertarAlFinal(lista, &pos, sizeof(tPosicion)) == TODO_OK)
                     count++;
             }
         }
@@ -285,7 +289,7 @@ int llenarListaPosicionesLibresParedes(char **matriz, int filas, int columnas, t
             {
                 pos.fila = i;
                 pos.columna = j;
-                if (listaPonerAlFinalREVISAR(lista, &pos, sizeof(tPosicion)) == TODO_OK)
+                if (listaInsertarAlFinal(lista, &pos, sizeof(tPosicion)) == TODO_OK)
                     count++;
             }
         }
@@ -295,106 +299,9 @@ int llenarListaPosicionesLibresParedes(char **matriz, int filas, int columnas, t
 
 tPosicion elegirYEliminarPosicionLista(tLista *lista, int *cantidad)
 {
-    int pos = rand() % (*cantidad) + 1; // rango de 1 a cantidad
+    int pos = rand() % (*cantidad); // rango de 0 a cantidad-1
     tPosicion posXY;
-    listaObtenerDatoPorPosicionREVISAR(lista, pos, &posXY, sizeof(tPosicion));
-    listaEliminarNodoPorPosicionREVISAR(lista, pos, &posXY, sizeof(tPosicion));
+    listaRemoverPorPos(lista, &posXY, sizeof(tPosicion), pos);
     (*cantidad)--;
-
     return posXY;
-}
-
-// funciones de lista REVISAR, función para poner en esctructuras_lista
-int listaObtenerDatoPorPosicionREVISAR(tLista *lista, int posicion, void *dato, size_t tamDato)
-{
-    int i = 0;
-
-    if (posicion < 1)
-        return -1; // POSICION_INVALIDA;
-
-    while (*lista != NULL && i < posicion - 1)
-    {
-        lista = &(*lista)->sig;
-        i++;
-    }
-
-    if (*lista == NULL)
-        return LISTA_VACIA;
-    memcpy(dato, (*lista)->info, MIN((*lista)->tamInfo, tamDato));
-    return TODO_OK;
-}
-
-int listaEliminarNodoPorPosicionREVISAR(tLista *lista, int posicion, void *dato, size_t tamDato)
-{
-    if (*lista == NULL)
-        return LISTA_VACIA;
-
-    if (posicion < 1)
-        return -1; // POSICION_INVALIDA;
-
-    // caso especial si es el primero
-    if (posicion == 1)
-    {
-        memcpy(dato, (*lista)->info, MIN((*lista)->tamInfo, tamDato));
-        tNodo *aux = *lista;
-        *lista = aux->sig;
-        free(aux->info);
-        free(aux);
-        return TODO_OK;
-    }
-
-    int i = 1;
-    while (*lista != NULL && i < posicion - 1)
-    {
-        lista = &(*lista)->sig;
-        i++;
-    }
-
-    if (*lista == NULL || (*lista)->sig == NULL)
-        return -1; // POSICION_INVALIDA;
-
-    memcpy(dato, (*lista)->sig->info, MIN((*lista)->sig->tamInfo, tamDato));
-
-    tNodo *aux = (*lista)->sig;
-    (*lista)->sig = aux->sig;
-    free(aux->info);
-    free(aux);
-    return TODO_OK;
-}
-
-int listaPonerAlFinalREVISAR(tLista *pl, const void *dato, size_t tamDato)
-{
-    tNodo *nuevo = (tNodo *)malloc(sizeof(tNodo));
-    if (nuevo == NULL)
-        return SIN_MEM;
-    nuevo->info = malloc(tamDato);
-    if (nuevo->info == NULL)
-    {
-        free(nuevo);
-        return SIN_MEM;
-    }
-
-    memcpy(nuevo->info, dato, tamDato);
-    nuevo->tamInfo = tamDato;
-    nuevo->sig = NULL;
-
-    while (*pl) // apunta a la direccion del puntero NULL al final de la lista, sale cuando *pl = NULL
-        pl = &(*pl)->sig;
-
-    *pl = nuevo;
-
-    return TODO_OK;
-}
-
-void listaVaciarREVISAR(tLista *pl)
-{
-    tNodo *elim;
-
-    while (*pl)
-    {
-        elim = *pl;
-        *pl = elim->sig; // Avanzás la lista (rompés el enlace antes de liberar)
-        free(elim->info);
-        free(elim);
-    }
 }

@@ -1,6 +1,6 @@
 #include "principal_partida.h"
 #include <stdio.h>
-#include <windows.h> // Para limpiar la consola system("cls")
+// #include <windows.h> // Para limpiar la consola system("cls")
 #include "codigosRet.h"
 #include "principal_menu.h"
 #include "interno_fantasma.h"
@@ -156,7 +156,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
 
     dibujarInicioPartida(matriz, conf->fil, conf->col);
     matrizRemplazarCaracterEnPosicion(matriz, JUGADOR, jug.posFil, jug.posCol, conf->fil, conf->col);
-    colaCrear(&movimientos);
+    colaCrear(&movimientos); 
     colaCrear(&registro);
 
     while (salida != TERMINAR && matriz[jug.posFil][jug.posCol] != matriz[entradaYSalida[1].fila][entradaYSalida[1].columna])

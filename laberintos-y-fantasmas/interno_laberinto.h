@@ -17,7 +17,7 @@
 #define FALSO 0
 
 // esto lo use solo para probar
-#define FILAS 15
+#define FILAS 12
 #define COLUMNAS 15
 #define MAX_FANTASMAS 5
 #define MAX_PREMIOS 5
@@ -46,7 +46,8 @@ int llenarListaPosicionesLibresParedes(char **matriz, int filas, int columnas, t
 int llenarListaPosicionesLibres(char **matriz, int filas, int columnas, tLista *lista);
 int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int columnas, char caracter, int cantidadCar, tCola* colaFantasmas);
 void generarEntradaYSalida(char **matriz, int filas, int columnas, tPosicion *posEnt, tPosicion *posSal);
-void evitarObstrucciones(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal, int maxBloquesPorPared);
+void evitarObstruccionesEsquinas(char **matriz, int filas, int columnas, int maxBloquesPorPared);
+void evitarObstruccionesEntradaSalida(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal, int maxBloquesPorPared);
 void colocarCaracterEnEsquinasDePosicion(char **matriz, int filas, int columnas, tPosicion pos, char caracter);
 void actualizarCaracterAlrededorDePosicion(char **matriz, int filas, int columnas, tPosicion pos, char car, char nuevoCar, int rango);
 void barajarOrdenDirecciones(int *ordenDirecciones, int n);
@@ -57,13 +58,5 @@ void generarParedesLimite(char **matriz, int filas, int columnas, tPosicion posE
 void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tCola* colaFantasmas);
 void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios,
 unsigned *vidasExtra, tCola* colaFantasmas, tPosicion entradaYSalida[]);
-
-// funciones de lista REVISAR
-int listaObtenerDatoPorPosicionREVISAR(tLista *lista, int posicion, void *dato, size_t tamDato);
-int listaEliminarNodoPorPosicionREVISAR(tLista *lista, int posicion, void *dato, size_t tamDato);
-int listaPonerAlFinalREVISAR(tLista *pl, const void *dato, size_t tamDato);
-void listaVaciarREVISAR(tLista *pl);
-
-// funcion para poner en principal_archivo
 
 #endif // INTERNO_LABERINTO_H_INCLUDED
