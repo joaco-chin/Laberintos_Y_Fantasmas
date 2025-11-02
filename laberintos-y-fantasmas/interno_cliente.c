@@ -1,7 +1,7 @@
 #include "interno_cliente.h"
 #include <stdio.h>
 #include <string.h>
-#include <windows.h>
+// #include <windows.h>
 #include "interno_pantalla.h"
 
 SOCKET clienteConectarAlServidor()

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <windows.h>
+//#include <windows.h>
 #include "principal_menu.h"
 #include "interno_matriz.h"
 #include "interno_laberinto.h"

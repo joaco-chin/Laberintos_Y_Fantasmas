@@ -2,7 +2,7 @@
 #define JUGADOR_H_INCLUDED
 
 #include "principal_archivo.h"
-#include <curses.h>
+#include "../comun/compat_curses.h"
 
 // Valores ASCII de las teclas
 #define ARRIBA 72

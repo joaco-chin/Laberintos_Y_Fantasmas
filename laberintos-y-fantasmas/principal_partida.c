@@ -1,6 +1,6 @@
 #include "principal_partida.h"
 #include <stdio.h>
-#include <windows.h> // Para limpiar la consola system("cls")
+// #include <windows.h> // Para limpiar la consola system("cls")
 #include "codigosRet.h"
 #include "principal_menu.h"
 #include "interno_fantasma.h"
