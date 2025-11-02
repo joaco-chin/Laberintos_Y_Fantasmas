@@ -2,7 +2,8 @@
 #define JUGADOR_H_INCLUDED
 
 #include "principal_archivo.h"
-#include <curses.h>
+#include "interno_laberinto.h"
+//#include <curses.h>
 
 // Valores ASCII de las teclas
 #define ARRIBA 72
@@ -14,21 +15,18 @@
 
 #define JUGADOR 'J'
 
-//#define ES_MOVIMIENTO(x)((x) == ARRIBA || (x) == ABAJO || (x) == IZQUIERDA || (x) == DERECHA ? 1 : 0)
-#define ES_MOVIMIENTO(x)((x) == KEY_UP || (x) == KEY_DOWN || (x) == KEY_LEFT || (x) == KEY_RIGHT ? 1 : 0)
-
 typedef struct
 {
-    int posFil;
-    int posCol;
+    tEntidad inGame;
     int vidas;
     int puntos;
     int cantMovimientos;
-} tJugador;
+}tJugador;
 
-int ingresarMovimiento();
-char ingresarTeclaDeJugador(unsigned periodo);
-void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna);
-void actualizarPuntosYVidas(tJugador *jug, char celda);
+//void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna);
+//void actualizarPuntosYVidas(tJugador *jug, char celda);
+void moverJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna, tCola* colaMovimientos);
+void actualizarPuntosYVidas(tJugador *jug, char **matriz);
+void impPosEnPantalla(const void* a);
 
 #endif // JUGADOR_H_INCLUDED

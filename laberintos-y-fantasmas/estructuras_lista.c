@@ -159,20 +159,30 @@ int listaVerPos(const tLista* pl, void* info, unsigned tamInfo, int pos)
     while(*pl && posAct < pos)
     {
         pl = &(*pl)->sig;
+        posAct++;
     }
 
-    if(posAct != pos)
-        return -1;
+    if(posAct != pos || *pl == NULL)
+        return NO_ENCONTRADO;
 
     memcpy(info, (*pl)->info, MIN((*pl)->tamInfo, tamInfo));
-    return 0;
+    return TODO_OK;
 }
 
-void listaRecorrer_TEST(const tLista* pl, Accion imp)
+void listaRecorrer(const tLista* pl, Accion imp)
 {
     while(*pl)
     {
         imp((*pl)->info);
+        pl = &(*pl)->sig;
+    }
+}
+
+void listaMap(tLista* pl, Actualizar actualizar)
+{
+    while(*pl)
+    {
+        actualizar((*pl)->info);
         pl = &(*pl)->sig;
     }
 }

@@ -1,6 +1,5 @@
 #include "principal_partida.h"
 #include <stdio.h>
-#include <windows.h> // Para limpiar la consola system("cls")
 #include "codigosRet.h"
 #include "principal_menu.h"
 #include "interno_fantasma.h"
@@ -13,7 +12,7 @@ int configuracionPartida(SOCKET sockCliente, int altoStdscr, int anchoStdscr)
     char **matLab;
     int codigoDeError = TODO_OK;
     int resultado;
-    tCola colaFantasmas;
+    tLista fantasmas;
     tPosicion entradaYSalida[2];
 
     // inicializa configuracion desde "config.txt"
@@ -32,14 +31,14 @@ int configuracionPartida(SOCKET sockCliente, int altoStdscr, int anchoStdscr)
     }
 
     // generarLaberintoAleatorio-> conf: contiene filas, columnas, maxNumFantasmas, maxNumPremios, maxVidasExtra REALES generados en el laberinto
-    colaCrear(&colaFantasmas); // Creamos la lista de fantasmas para enviarla como parametro a la generacion del laberinto, para poder cargar las posiciones iniciales de cada fantasma
+    listaCrear(&fantasmas); // Creamos la lista de fantasmas para enviarla como parametro a la generacion del laberinto, para poder cargar las posiciones iniciales de cada fantasma
     generarLaberintoAleatorio(matLab, conf.fil, conf.col, &conf.maxNumFantasmas, &conf.maxNumPremios,
-                              &conf.maxVidasExtra, &colaFantasmas, entradaYSalida);
+                              &conf.maxVidasExtra, &fantasmas, entradaYSalida);
 
     // guarda la matriz en "laberinto.txt"
     escribirMatrizEnArchivoTxt(matLab, "laberinto.txt", conf.fil, conf.col);
 
-    resultado = ejecucionPartida(matLab, &conf, sockCliente, &colaFantasmas, entradaYSalida, anchoStdscr, altoStdscr);
+    resultado = ejecucionPartida(matLab, &conf, sockCliente, &fantasmas, entradaYSalida, anchoStdscr, altoStdscr);
     if (resultado == PARTIDA_PERDIDA)
     {
         clear();
@@ -49,141 +48,58 @@ int configuracionPartida(SOCKET sockCliente, int altoStdscr, int anchoStdscr)
     }
 
     matrizDestruir((void **)matLab, conf.fil);
-    colaVaciar(&colaFantasmas);
+    listaVaciar(&fantasmas);
     return TODO_OK;
 }
-//
-// int partida_ejecucion(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFantasmas)
-//{
-//    tJugador jug;
-//    int filaEntrada, columnaEntrada;
-//    int filaSalida, columnaSalida;
-//    char tecla;
-//    int salida = REANUDAR;
-//    tCola movimientos; // Cola para guardar los movimientos de la m�quina
-//    tCola registro; // Lista para guardar el registro de los movimientos del jugador
-//    int cantMovimientos = 0;
-//
-//    jug.vidas = conf->vidasInicio;
-//    jug.puntos = 0;
-//
-//    matrizBuscar(matriz, 'E', &filaEntrada, &columnaEntrada, conf->fil, conf->col);
-//    jug.posFil = filaEntrada;
-//    jug.posCol = columnaEntrada;
-//    matrizBuscar(matriz, 'S', &filaSalida, &columnaSalida, conf->fil, conf->col);
-//
-//    printf("Presione una tecla para comenzar, finaliza con ESC\n\n");
-//    matrizMostrar(matriz, conf->fil, conf->col);
-//    matrizRemplazarCaracterEnPosicion(matriz, 'J', jug.posFil, jug.posCol, conf->fil, conf->col);
-//
-//    colaCrear(&movimientos);
-//    colaCrear(&registro);
-////    tecla = ingresarTeclaDeJugador(VELOCIDAD_JUEGO);
-//    tecla = (char)ingresarMovimiento();
-//
-//    while (salida != TERMINAR && matriz[jug.posFil][jug.posCol] != matriz[filaSalida][columnaSalida])
-//    {
-//        if(tecla != ESC)
-//        {
-//            if(ES_MOVIMIENTO(tecla))
-//            {
-//                matrizActualizarPosicionDeJugador(matriz, conf->fil, conf->col, &jug,
-//                jug.posFil + (tecla == ABAJO) - (tecla == ARRIBA), jug.posCol + (tecla == DERECHA) - (tecla == IZQUIERDA));
-//                colaEncolar(&registro, &jug, sizeof(tJugador));
-//            }
-//
-//            calcularMovimientosFantasmas(matriz, conf->fil, conf->col, colaFantasmas, &jug, &movimientos);
-//            actualizarPosicionesFantasmas(matriz, conf->fil, conf->col, colaFantasmas, &jug, &movimientos);
-//            actualizarPuntosYVidas(&jug, matriz[jug.posFil][jug.posCol]);
-//
-//            salida = actualizarJuegoPorEstadoDeVidas(matriz, &jug, colaFantasmas, conf, filaEntrada, columnaEntrada);
-//            dibujarPantalla(matriz, conf->fil, conf->col, jug.vidas, jug.puntos);
-//        }
-//        else
-//        {
-//            salida = menuDePausa();
-//            dibujarPantalla(matriz, conf->fil, conf->col, jug.vidas, jug.puntos);
-//        }
-//
-//        if(salida != TERMINAR)
-//        {
-//            tecla = ingresarTeclaDeJugador(VELOCIDAD_JUEGO); // Ingresa la tecla con un timer
-////            tecla = (char)ingresarMovimiento();
-//        }
-//    }
-//    system("cls");
-//
-//    if (salida == TERMINAR)
-//    {
-//        colaVaciar(&movimientos);
-//        colaVaciar(&registro);
-//        return PARTIDA_PERDIDA;
-//    }
-//
-//    // ya se tiene puntaje, contar cant de movimientos del jugador que se guardaron en la cola
-//    printf("Partida ganada! Puntos: %d, Movimientos: %d\n", jug.puntos, cantMovimientos);
-//    Sleep(TIEMPO_MENSAJE);
-//
-//    if (sockCliente != INVALID_SOCKET)
-//    {
-//        char mensaje[BUFFER_SIZE];
-//        sprintf(mensaje, "GUARDAR_PUNTUACION|%d|%d", jug.puntos, cantMovimientos);
-//        char respuesta[BUFFER_SIZE];
-//        if (enviarPeticion(sockCliente, mensaje, respuesta) == 0)
-//            printf("[Servidor]: %s\n", respuesta);
-//        else
-//            printf("Error al enviar o recibir datos del servidor.\n");
-//    }
-//    else
-//    {
-//        printf("No se pudo guardar la puntuacion, no hay conexion con el servidor.\n");
-//    }
-//
-//    system("cls");
-//    colaVaciar(&movimientos);
-//    colaVaciar(&registro);
-//    return PARTIDA_GANADA;
-//}
 
-int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *colaFantasmas, tPosicion entradaYSalida[], int altoStdscr, int anchoStdscr)
+int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *fantasmas, tPosicion entradaYSalida[], int altoStdscr, int anchoStdscr)
 {
-    tJugador jug = {entradaYSalida[0].fila, entradaYSalida[0].columna, conf->vidasInicio, 0, 0};
-    //|jug.fil = -1|jug.col = -1|jug.vidas = conf->vidasInicio|jug.puntos = 0 |jug.cantMovimientos = 0|
+    tJugador jug;
     int salida = REANUDAR;
-    tCola movimientos; // Cola para guardar los movimientos de la m�quina
-    tCola registro;    // Cola para guardar el registro de los movimientos del jugador
+    tCola movimientos; // Cola para guardar los movimientos de la partida
+    tLista registro;    // Cola para guardar el registro de los movimientos del jugador // CAMBIAR POR UNA LISTA
     int bonificacion = determinarBonificacion(conf->dificultad);
 
+    jug.inGame.y = entradaYSalida[0].fila;
+    jug.inGame.x = entradaYSalida[0].columna;
+    jug.inGame.caracterEnt = JUGADOR;
+    jug.inGame.caracterFondo = CAMINO;
+    jug.inGame.estaVivo = 1;
+    jug.inGame.posInicial = entradaYSalida[0];
+    jug.vidas = conf->vidasInicio;
+    jug.puntos = 0;
+    jug.cantMovimientos = 0;
+
     dibujarInicioPartida(matriz, conf->fil, conf->col);
-    matrizRemplazarCaracterEnPosicion(matriz, JUGADOR, jug.posFil, jug.posCol, conf->fil, conf->col);
+    matrizRemplazarCaracterEnPosicion(matriz, jug.inGame.caracterFondo, jug.inGame.y, jug.inGame.x, conf->fil, conf->col);
     colaCrear(&movimientos);
-    colaCrear(&registro);
+    listaCrear(&registro);
 
-    while (salida != TERMINAR && matriz[jug.posFil][jug.posCol] != matriz[entradaYSalida[1].fila][entradaYSalida[1].columna])
+    while(salida != TERMINAR && matriz[jug.inGame.y][jug.inGame.x] != matriz[entradaYSalida[1].fila][entradaYSalida[1].columna])
     {
-        salida = procesarAccionDeJugador(matriz, conf->fil, conf->col, &jug, &registro, altoStdscr, anchoStdscr);
+        salida = procesarAccionDeJugador(matriz, conf->fil, conf->col, &jug, &registro, &movimientos, altoStdscr, anchoStdscr);
 
-        if (salida == REANUDAR)
+        if(salida == REANUDAR)
         {
-            salida = procesarEventosDePartida(matriz, conf, &jug, colaFantasmas, &movimientos, entradaYSalida);
+            salida = procesarEventosDePartida(matriz, conf, &jug, fantasmas, &movimientos, entradaYSalida);
             dibujarPartida(matriz, conf->fil, conf->col, conf->dificultad, jug.vidas, jug.puntos);
         }
 
     }
 
-    if (salida == TERMINAR)
+    if(salida == TERMINAR)
     {
         colaVaciar(&movimientos);
-        colaVaciar(&registro);
+        listaVaciar(&registro);
         return PARTIDA_PERDIDA;
     }
 
     clear();
-    mvprintw(0, 0, "Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d", jug.puntos, bonificacion, jug.puntos * bonificacion, jug.cantMovimientos);
+    printw("Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d\n", jug.puntos, bonificacion, jug.puntos * bonificacion, jug.cantMovimientos);
+    printw("Movimientos realizados:\n");
+    listaRecorrer(&registro, impPosEnPantalla);
     refresh();
-    napms(TIEMPO_MENSAJE);
-
-//    dibujarMensaje("Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d");
+    napms(TIEMPO_MENSAJE * 10);
 
     if (sockCliente != INVALID_SOCKET)
     {
@@ -217,76 +133,103 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola *co
     }
 
     colaVaciar(&movimientos);
-    colaVaciar(&registro);
+    listaVaciar(&registro);
     return PARTIDA_GANADA;
 }
 
-int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tCola *registro, int altoStdscr, int anchoStdscr)
+int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tLista *registro, tCola *movimientos, int altoStdscr, int anchoStdscr)
 {
-//    char tecla = ingresarTeclaDeJugador(TIEMPO_INPUT);
     int tecla = getch();
+    tPosicion posJugador;
 
     if(tecla == ESC)
     {
-        if (menuDePausa(altoStdscr, anchoStdscr) != REANUDAR)
+        if(menuDePausa(altoStdscr, anchoStdscr) != REANUDAR)
         {
             return TERMINAR;
         }
     }
-    else if (ES_MOVIMIENTO(tecla))
+    else if(ES_MOVIMIENTO(tecla))
     {
-        matrizActualizarPosicionDeJugador(matriz, cf, cc, jug,
-                                          jug->posFil + (tecla == KEY_DOWN) - (tecla == KEY_UP), jug->posCol + (tecla == KEY_RIGHT) - (tecla == KEY_LEFT));
+//        matrizActualizarPosicionDeJugador(matriz, cf, cc, jug,
+//                                          jug->posFil + (tecla == KEY_DOWN) - (tecla == KEY_UP), jug->posCol + (tecla == KEY_RIGHT) - (tecla == KEY_LEFT));
+        moverJugador(matriz, cf, cc, jug, jug->inGame.y + (tecla == KEY_DOWN) - (tecla == KEY_UP),
+        jug->inGame.x + (tecla == KEY_RIGHT) - (tecla == KEY_LEFT), movimientos);
+
         jug->cantMovimientos++;
-        colaEncolar(registro, jug, sizeof(tJugador));
+        posJugador.fila = jug->inGame.y;
+        posJugador.columna = jug->inGame.x;
+        listaPonerAlFinalREVISAR(registro, &posJugador, sizeof(tPosicion));
     }
 
     return REANUDAR;
 }
 
-int procesarEventosDePartida(char **matriz, tConfig *conf, tJugador *jug, tCola *colaFantasmas, tCola *movimientos, tPosicion entradaYSalida[])
+void desencolarMovimientosPartida(char** matriz, int cf, int cc, tCola* movimientos, tLista* fantasmas)
 {
-    calcularMovimientosFantasmas(matriz, conf->fil, conf->col, colaFantasmas, jug, movimientos);
-    actualizarPosicionesFantasmas(matriz, conf->fil, conf->col, colaFantasmas, jug, movimientos);
-    actualizarPuntosYVidas(jug, matriz[jug->posFil][jug->posCol]);
-    if (actualizarPartidaPorEstadoDeVidas(matriz, jug, colaFantasmas, conf, entradaYSalida[0].fila, entradaYSalida[0].columna) != REANUDAR)
+    tEntidad entidad, aux;
+    int pos;
+
+    while(colaDesencolar(movimientos, &entidad, sizeof(tEntidad)) == TODO_OK)
+    {
+        pos = listaBuscarPorClave(fantasmas, &entidad, cmpPosIniciales);
+        if(pos != NO_ENCONTRADO)
+        {
+            listaRemoverPorPos(fantasmas, &aux, sizeof(tEntidad), pos);
+            matriz[aux.y][aux.x] = entidad.caracterFondo;
+            if(!(aux.caracterEnt == FANTASMA && matriz[entidad.y][entidad.x] == JUGADOR))
+            {
+                listaInsertarAlInicio(fantasmas, &entidad, sizeof(tEntidad));
+            }
+            else
+            {
+                entidad.estaVivo = FANTASMA_MUERTO;
+            }
+        }
+
+        if(matriz[entidad.y][entidad.x] != FANTASMA)
+        {
+            entidad.caracterFondo = matriz[entidad.y][entidad.x];
+        }
+
+        if(entidad.caracterEnt == JUGADOR && matriz[entidad.y][entidad.x] == FANTASMA)
+        {
+            pos = listaBuscarPorClave(fantasmas, &entidad, cmpPosEntidad);
+            listaRemoverPorPos(fantasmas, &aux, sizeof(tEntidad), pos);
+        }
+
+        matrizRemplazarCaracterEnPosicion(matriz, entidad.caracterEnt, entidad.y, entidad.x, cf, cc);
+    }
+}
+
+int procesarEventosDePartida(char **matriz, tConfig *conf, tJugador *jug, tLista *fantasmas, tCola *movimientos, tPosicion entradaYSalida[])
+{
+    calcularMovimientosFantasmas(matriz, conf->fil, conf->col, fantasmas, jug, movimientos);
+    desencolarMovimientosPartida(matriz, conf->fil, conf->col, movimientos, fantasmas);
+    actualizarPuntosYVidas(jug, matriz);
+    if(actualizarPartidaPorEstadoDeVidas(matriz, jug, fantasmas, conf, entradaYSalida[0].fila, entradaYSalida[0].columna) != REANUDAR)
     {
         return TERMINAR;
     }
     return REANUDAR;
 }
 
-int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tCola *colaFantasmas, tConfig *conf, int filaEntrada, int columnaEntrada)
+int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tLista *fantasmas, tConfig *conf, int filaEntrada, int columnaEntrada)
 {
-    tFantasma fantasma;
-    tCola aux;
-
-    colaCrear(&aux);
-    if (jug->vidas < conf->vidasInicio)
+    if(jug->vidas < conf->vidasInicio)
     {
-        matriz[jug->posFil][jug->posCol] = CAMINO;
-        jug->posFil = filaEntrada;
-        jug->posCol = columnaEntrada;
-        matriz[jug->posFil][jug->posCol] = JUGADOR;
+        matriz[jug->inGame.y][jug->inGame.x] = CAMINO;
+        jug->inGame.y = filaEntrada;
+        jug->inGame.x = columnaEntrada;
+        matriz[jug->inGame.y][jug->inGame.x] = JUGADOR;
         conf->vidasInicio = jug->vidas;
-
-        while (colaDesencolar(colaFantasmas, &fantasma, sizeof(tFantasma)) == TODO_OK)
-        {
-            matriz[fantasma.fil][fantasma.col] = fantasma.caracterAnterior;
-            fantasma.fil = fantasma.posInicial.fila;
-            fantasma.col = fantasma.posInicial.columna;
-            fantasma.caracterAnterior = CAMINO;
-            fantasma.estaVivo = FANTASMA_VIVO;
-            colaEncolar(&aux, &fantasma, sizeof(tFantasma));
-        }
-
-        while (colaDesencolar(&aux, &fantasma, sizeof(tFantasma)) == TODO_OK)
-        {
-            colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
-        }
+        limpiarFantasmas(matriz, fantasmas);
+        listaMap(fantasmas, resetearFantasma);
     }
     else if (jug->vidas > conf->vidasInicio)
+    {
         conf->vidasInicio = jug->vidas;
+    }
     else if (jug->vidas <= 0)
     {
         return TERMINAR;

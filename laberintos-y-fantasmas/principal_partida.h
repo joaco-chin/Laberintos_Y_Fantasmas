@@ -19,15 +19,18 @@
 #define BONIFICACION_NORMAL 5
 #define BONIFICACION_DIFICIL 25
 #define BONIFICACION_PESADILLA 125
+//MACROS operaciones
+#define ES_MOVIMIENTO(x)((x) == KEY_UP || (x) == KEY_DOWN || (x) == KEY_LEFT || (x) == KEY_RIGHT ? 1 : 0)
 
-int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tCola* colaFantasmas, tConfig *conf, int filaEntrada, int columnaEntrada);
-int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tCola *registro, int altoStdscr, int anchoStdscr);
-int procesarEventosDePartida(char **matriz, tConfig *conf, tJugador *jug, tCola *colaDeFantasmas, tCola *movimientos, tPosicion entradaYSalida[]);
+int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tLista* fantasmas, tConfig *conf, int filaEntrada, int columnaEntrada);
+int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tLista *registro, tCola* movimientos, int altoStdscr, int anchoStdscr);
+void desencolarMovimientosPartida(char** matriz, int cf, int cc, tCola* movimientos, tLista* listaFantasmas);
+int procesarEventosDePartida(char **matriz, tConfig *conf, tJugador *jug, tLista *fantasmas, tCola *movimientos, tPosicion entradaYSalida[]);
 int determinarBonificacion(const char *dif);
 void dibujarInicioPantalla(char **matriz, int cc, int cf);
 void dibujarPantalla(char **matriz, int cc, int cf, const char* dificultad, int vidas, int puntos);
 
-int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tCola* colaFantasmas, tPosicion entradaYSalida[], int altoStdscr, int anchoStdscr);
+int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista* fantasmas, tPosicion entradaYSalida[], int altoStdscr, int anchoStdscr);
 // Devuelve el resultado de la partida
 int configuracionPartida(SOCKET sockCliente, int altoStdscr, int anchoStdscr);
 void verRanking(SOCKET sockCliente);

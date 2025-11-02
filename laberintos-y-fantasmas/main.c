@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <curses.h>
+#include <time.h>
 #include <winsock2.h>
 #include "principal_menu.h"
 #include "interno_cliente.h"
