@@ -2,7 +2,7 @@
 #define MENU_H_INCLUDED
 
 #include <winsock2.h>
-#include "interno_pantalla.h"
+#include "principal_partida.h"
 
 #define CANT_OPCIONES_PAUSA 2
 #define CANT_OPCIONES_CONFIRMACION 2

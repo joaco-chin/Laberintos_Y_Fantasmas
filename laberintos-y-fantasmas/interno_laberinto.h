@@ -39,12 +39,22 @@ typedef struct
 {
     int fila;
     int columna;
-} tPosicion;
+}tPosicion;
+
+typedef struct
+{
+    int y;
+    int x;
+    char caracterEnt;
+    char caracterFondo;
+    tPosicion posInicial;
+    int estaVivo;
+}tEntidad;
 
 tPosicion elegirYEliminarPosicionLista(tLista *lista, int *cantidad);
 int llenarListaPosicionesLibresParedes(char **matriz, int filas, int columnas, tLista *lista);
 int llenarListaPosicionesLibres(char **matriz, int filas, int columnas, tLista *lista);
-int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int columnas, char caracter, int cantidadCar, tCola* colaFantasmas);
+int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int columnas, char caracter, int cantidadCar, tLista* fantasmas);
 void generarEntradaYSalida(char **matriz, int filas, int columnas, tPosicion *posEnt, tPosicion *posSal);
 void evitarObstruccionesEsquinas(char **matriz, int filas, int columnas, int maxBloquesPorPared);
 void evitarObstruccionesEntradaSalida(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal, int maxBloquesPorPared);
@@ -55,8 +65,8 @@ void colocarParedTemporalEnPosicion(char **matriz, int filas, int columnas, tPos
 int hayCaracterAlrededorDePosicion(char **matriz, int filas, int columnas, int i, int j, char objetivo);
 void generarParedesInternas(char **matriz, int filas, int columnas, int maxBloquesPorPared);
 void generarParedesLimite(char **matriz, int filas, int columnas, tPosicion posEnt, tPosicion posSal);
-void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tCola* colaFantasmas);
+void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tLista* listaFantasmas);
 void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios,
-unsigned *vidasExtra, tCola* colaFantasmas, tPosicion entradaYSalida[]);
+unsigned *vidasExtra, tLista* listaFantasmas, tPosicion entradaYSalida[]);
 
 #endif // INTERNO_LABERINTO_H_INCLUDED

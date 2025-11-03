@@ -3,7 +3,7 @@
 #include "codigosRet.h"
 
 void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios,
-                               unsigned *vidasExtra, tCola *colaFantasmas, tPosicion entradaYsalida[])
+unsigned *vidasExtra, tLista* listaFantasmas, tPosicion entradaYsalida[])
 {
     tPosicion posEnt, posSal;
     int maxBloquesPorPared = 2;
@@ -14,7 +14,7 @@ void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned 
     evitarObstruccionesEntradaSalida(matriz, filas, columnas, posEnt, posSal, maxBloquesPorPared);
     generarParedesInternas(matriz, filas, columnas, maxBloquesPorPared);
     generarParedesLimite(matriz, filas, columnas, posEnt, posSal);
-    colocarCaracteresEspeciales(matriz, filas, columnas, fantasmas, premios, vidasExtra, colaFantasmas);
+    colocarCaracteresEspeciales(matriz, filas, columnas, fantasmas, premios, vidasExtra, listaFantasmas);
     actualizarCaracterAlrededorDePosicion(matriz, filas, columnas, posEnt, PARED_RANGO_ENTRADA, CAMINO, maxBloquesPorPared + 1);
 
     entradaYsalida[0] = posEnt;
@@ -200,21 +200,21 @@ void colocarCaracterEnEsquinasDePosicion(char **matriz, int filas, int columnas,
                 matriz[i][j] = caracter;
 }
 
-void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tCola *colaFantasmas)
+void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios, unsigned *vidasExtra, tLista* listaFantasmas)
 {
-    unsigned cantFantasmas = colocarCaracteresEnPosicionesAleatorias(matriz, filas, columnas, FANTASMA, *fantasmas, colaFantasmas);
+    unsigned cantFantasmas = colocarCaracteresEnPosicionesAleatorias(matriz, filas, columnas, FANTASMA, *fantasmas, listaFantasmas);
     if (cantFantasmas != *fantasmas)
     {
         printf("Se generaron %d fantasmas en lugar de %d\n", cantFantasmas, *fantasmas);
         *fantasmas = cantFantasmas;
     }
-    unsigned cantVidasExtra = colocarCaracteresEnPosicionesAleatorias(matriz, filas, columnas, VIDA_EXTRA, *vidasExtra, colaFantasmas);
+    unsigned cantVidasExtra = colocarCaracteresEnPosicionesAleatorias(matriz, filas, columnas, VIDA_EXTRA, *vidasExtra, listaFantasmas);
     if (cantVidasExtra != *vidasExtra)
     {
         printf("Se generaron %d vidas extra en lugar de %d\n", cantVidasExtra, *vidasExtra);
         *vidasExtra = cantVidasExtra;
     }
-    unsigned cantPremios = colocarCaracteresEnPosicionesAleatorias(matriz, filas, columnas, PREMIO, *premios, colaFantasmas);
+    unsigned cantPremios = colocarCaracteresEnPosicionesAleatorias(matriz, filas, columnas, PREMIO, *premios, listaFantasmas);
     if (cantPremios != *premios)
     {
         printf("Se generaron %d premios en lugar de %d\n", cantPremios, *premios);
@@ -222,10 +222,11 @@ void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigne
     }
 }
 
-int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int columnas, char caracter, int cantidadCar, tCola *colaFantasmas)
+int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int columnas, char caracter, int cantidadCar, tLista* listaFantasmas)
 {
     int k = 0;
-    tFantasma fantasma;
+//    tFantasma fantasma;
+    tEntidad fantasma;
     tLista listaPosLibres;
     tPosicion p;
     listaCrear(&listaPosLibres);
@@ -242,14 +243,15 @@ int colocarCaracteresEnPosicionesAleatorias(char **matriz, int filas, int column
         matriz[p.fila][p.columna] = caracter;
         if (caracter == FANTASMA)
         {
-            fantasma.fil = p.fila;
-            fantasma.col = p.columna;
-            fantasma.caracterAnterior = CAMINO;
+            fantasma.y = p.fila;
+            fantasma.x = p.columna;
+            fantasma.caracterEnt = FANTASMA;
+            fantasma.caracterFondo = CAMINO;
             fantasma.estaVivo = FANTASMA_VIVO;
             fantasma.posInicial.fila = p.fila;
             fantasma.posInicial.columna = p.columna;
-            colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
-            // printf("fantasma fil: %d|col: %d\n", fantasma.posInicial.fila, fantasma.posInicial.columna);
+//            colaEncolar(colaFantasmas, &fantasma, sizeof(tFantasma));
+            listaInsertarAlFinal(listaFantasmas, &fantasma, sizeof(tEntidad));
         }
     }
     listaVaciar(&listaPosLibres);

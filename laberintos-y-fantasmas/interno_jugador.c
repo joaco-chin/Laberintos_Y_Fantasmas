@@ -6,59 +6,87 @@
 //#include <windows.h>
 #include "principal_menu.h"
 #include "interno_matriz.h"
-#include "interno_laberinto.h"
 
-//int ingresarMovimiento() // Funcion hecha para solucionar el problema del doble movimiento
+//void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna)
 //{
-//    int entrada = getch();
-//    if(entrada == 0 || entrada == 224)
+//    if (nuevaFila >= 0 && nuevaFila < filas && nuevaColumna >= 0 && nuevaColumna < col)
 //    {
-//        entrada = getch();
-//    }
-//    return entrada;
-//}
-//
-//char ingresarTeclaDeJugador(unsigned periodo)
-//{
-//    clock_t temp = clock() + periodo;
-//    char entrada = 0;
-//
-//    fflush(stdin);
-//    while(temp > clock())
-//    {
-//        if(kbhit())
+//        if (matriz[nuevaFila][nuevaColumna] != PARED)
 //        {
-//            entrada = (char)ingresarMovimiento();
-//            return entrada;
+//            matriz[jug->posFil][jug->posCol] = CAMINO;
+//            jug->posFil = nuevaFila;
+//            jug->posCol = nuevaColumna;
+//
+//            actualizarPuntosYVidas(jug, matriz[jug->posFil][jug->posCol]);
+//
+//            matriz[jug->posFil][jug->posCol] = JUGADOR;
 //        }
 //    }
-//
-//    return entrada;
 //}
 
-void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna)
+//void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna)
+//{
+//    if (nuevaFila >= 0 && nuevaFila < filas && nuevaColumna >= 0 && nuevaColumna < col)
+//    {
+//        if (matriz[nuevaFila][nuevaColumna] != PARED)
+//        {
+//            matriz[jug->inGame.y][jug->inGame.x] = CAMINO;
+//            jug->inGame.y = nuevaFila;
+//            jug->inGame.x = nuevaColumna;
+//
+//            actualizarPuntosYVidas(jug, matriz[jug->inGame.y][jug->inGame.x]);
+//
+//            matriz[jug->inGame.y][jug->inGame.x] = JUGADOR;
+//        }
+//    }
+//}
+
+void moverJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna, tCola* colaMovimientos)
 {
-    if (nuevaFila >= 0 && nuevaFila < filas && nuevaColumna >= 0 && nuevaColumna < col)
+    int codigoDeError = TODO_OK;
+    tEntidad mov;
+
+    if(nuevaFila >= 0 && nuevaFila < filas && nuevaColumna >= 0 && nuevaColumna < col) // Mientras est� dentro de la matriz
     {
-        if (matriz[nuevaFila][nuevaColumna] != PARED)
+        if(matriz[nuevaFila][nuevaColumna] != PARED)
         {
-            matriz[jug->posFil][jug->posCol] = CAMINO;
-            jug->posFil = nuevaFila;
-            jug->posCol = nuevaColumna;
-
-            actualizarPuntosYVidas(jug, matriz[jug->posFil][jug->posCol]);
-
-            matriz[jug->posFil][jug->posCol] = JUGADOR;
+            mov = jug->inGame;
+            mov.y = nuevaFila;
+            mov.x = nuevaColumna;
+            mov.caracterFondo = matriz[nuevaFila][nuevaColumna];
+            matriz[jug->inGame.y][jug->inGame.x] = jug->inGame.caracterFondo;
+            codigoDeError = colaEncolar(colaMovimientos, &mov, sizeof(tEntidad));
+            if(codigoDeError == TODO_OK)
+            {
+                jug->inGame.y = nuevaFila;
+                jug->inGame.x = nuevaColumna;
+                actualizarPuntosYVidas(jug, matriz);
+            }
         }
     }
 }
 
-void actualizarPuntosYVidas(tJugador *jug, char celda)
+void actualizarPuntosYVidas(tJugador *jug, char **matriz)
 {
-    if (celda == PREMIO)
+    if(matriz[jug->inGame.y][jug->inGame.x] == PREMIO)
+    {
         jug->puntos++;
-    else if (celda == VIDA_EXTRA)
+        matriz[jug->inGame.y][jug->inGame.x] = CAMINO;
+    }
+    else if(matriz[jug->inGame.y][jug->inGame.x] == VIDA_EXTRA)
+    {
         jug->vidas++;
-    else if (celda == FANTASMA)
+        matriz[jug->inGame.y][jug->inGame.x] = CAMINO;
+    }
+    else if(matriz[jug->inGame.y][jug->inGame.x] == FANTASMA)
+    {
         jug->vidas--;
+        matriz[jug->inGame.y][jug->inGame.x] = CAMINO;
+    }
+}
+
+void impPosEnPantalla(const void* a)
+{
+    const tPosicion* posJugador = (tPosicion*)a;
+    printw("Fila:%d|Columna%d\n", posJugador->fila, posJugador->columna);
 }

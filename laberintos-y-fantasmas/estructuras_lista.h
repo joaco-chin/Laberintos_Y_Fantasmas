@@ -19,7 +19,8 @@ int listaBuscarPorClave(const tLista* pl, void* clave, Cmp cmpNodos);
 int listaRemoverInicio(tLista* pl, void* info, unsigned tamInfo);
 int listaRemoverPorPos(tLista* pl, void* info, unsigned tamInfo, int pos);
 int listaVerPos(const tLista* pl, void* info, unsigned tamInfo, int pos);
-void listaRecorrer_TEST(const tLista* pl, Accion imp);
+void listaMap(tLista* pl, Actualizar actualizar);
+void listaRecorrer(const tLista* pl, Accion imp);
 void listaVaciar(tLista* pl);
 
 #endif // ESTRUCTURAS_LISTA_H_INCLUDED

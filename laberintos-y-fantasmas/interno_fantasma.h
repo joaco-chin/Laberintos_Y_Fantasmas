@@ -36,9 +36,10 @@ typedef struct
     tPosicion posInicial;
 }tFantasma;
 
-void buscarFantasmasEnMatriz(char** matriz, int cf, int cc, tFantasma* vecFantasma, int ce);
-int aStarBusqueda(char** matriz, int cf, int cc, const tFantasma* inicio, const tJugador* meta, tCola* movimientos);
-void calcularMovimientosFantasmas(char** matriz, int cf, int cc, tCola* colaFantasmas, const tJugador* jugador, tCola* movimientos);
+int aStarBusqueda(char** matriz, int cf, int cc, const tEntidad* inicio, const tEntidad* meta, tCola* movimientos);
+//void calcularMovimientosFantasmas(char** matriz, int cf, int cc, tCola* colaFantasmas, const tJugador* jugador, tCola* movimientos);
+void calcularMovimientosFantasmas(char** matriz, int cf, int cc, tLista* fantasmas, const tJugador* jugador, tCola* movimientos);
+void limpiarFantasmas(char** matriz, tLista* listaFantasmas);
 void actualizarPosicionesFantasmas(char** matriz, int cf, int cc, tCola* colaFantasmas, tJugador* jugador, tCola* movimientos);
 int calcularHeuristica(const tInfoNodo* inicio, const tInfoNodo* meta);
 
@@ -46,8 +47,9 @@ int buscarVecinos(int cf, int cc, const tInfoNodo* nodoAct, tCola* plVecinos);
 int cmpCostos(const void* a, const void* b);
 int cmpPos(const void* a, const void* b);
 int cmpPosFan(const void* a, const void* b);
-
 void impFan(const void* a);
-void _mostrarFantasmas_TEST(const tFantasma* vecFantasma, int ce); // Para testear si los fantasmas se buscan de forma correcta
+int cmpPosEntidad(const void* a, const void* b);
+int cmpPosIniciales(const void* a, const void* b);
+void resetearFantasma(void* info);
 
 #endif // FANTASMA_H_INCLUDED
