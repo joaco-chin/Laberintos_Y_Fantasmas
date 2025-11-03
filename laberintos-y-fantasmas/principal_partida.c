@@ -159,7 +159,7 @@ int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tLista
         jug->cantMovimientos++;
         posJugador.fila = jug->inGame.y;
         posJugador.columna = jug->inGame.x;
-        listaPonerAlFinalREVISAR(registro, &posJugador, sizeof(tPosicion));
+        listaInsertarAlFinal(registro, &posJugador, sizeof(tPosicion));
     }
 
     return REANUDAR;
