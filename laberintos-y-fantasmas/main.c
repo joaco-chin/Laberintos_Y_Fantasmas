@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <curses.h>
 #include <time.h>
 #include <winsock2.h>
+#include "../comun/compat_curses.h"
 #include "principal_menu.h"
 #include "interno_cliente.h"
 
@@ -14,14 +14,14 @@ int main()
     int altoStdscr, anchoStdscr;
 
     srand(time(NULL));
-    initscr(); // Inicializa la pantalla de curses.h y asigna memoria
-    keypad(stdscr, true); // Habilita el uso del keypad para la pantalla estándar
-    curs_set(0); // Oculta el cursor
+    initscr();            // Inicializa la pantalla de curses.h y asigna memoria
+    keypad(stdscr, true); // Habilita el uso del keypad para la pantalla estï¿½ndar
+    curs_set(0);          // Oculta el cursor
     getmaxyx(stdscr, altoStdscr, anchoStdscr);
 
     sock = clienteConectarAlServidor();
 
-//    nodelay(stdscr, true);
+    // nodelay(stdscr, true);
     noecho(); //
 
     timeout(TIEMPO_FRAME);
@@ -29,5 +29,7 @@ int main()
 
     refresh();
     endwin(); // Finaliza la pantalla de curses.h y libera memoria
+    cerrarConexion(sock);
+
     return 0;
 }

@@ -3,7 +3,7 @@
 
 #include "principal_archivo.h"
 #include "interno_laberinto.h"
-//#include <curses.h>
+#include "../comun/compat_curses.h"
 
 // Valores ASCII de las teclas
 #define ARRIBA 72

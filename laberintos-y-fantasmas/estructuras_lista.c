@@ -35,6 +35,30 @@ int listaInsertarAlInicio(tLista* pl, const void* info, unsigned tamInfo)
     return TODO_OK;
 }
 
+int listaInsertarAlFinal(tLista *pl, const void *info, unsigned tamInfo)
+{
+    tNodo *nuevo = (tNodo *)malloc(sizeof(tNodo));
+    if (nuevo == NULL)
+        return SIN_MEM;
+    nuevo->info = malloc(tamInfo);
+    if (nuevo->info == NULL)
+    {
+        free(nuevo);
+        return SIN_MEM;
+    }
+
+    memcpy(nuevo->info, info, tamInfo);
+    nuevo->tamInfo = tamInfo;
+    nuevo->sig = NULL;
+
+    while (*pl)
+        pl = &(*pl)->sig;
+
+    *pl = nuevo;
+
+    return TODO_OK;
+}
+
 int listaInsertarOrdenado(tLista* pl, const void* info, unsigned tamInfo, Cmp cmpNodos)
 {
     tNodo* nuevo;

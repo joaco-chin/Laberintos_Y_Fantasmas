@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <curses.h>
+#include <time.h>
+//#include <windows.h>
 #include "principal_menu.h"
 #include "interno_matriz.h"
 
@@ -45,7 +46,7 @@ void moverJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFil
     int codigoDeError = TODO_OK;
     tEntidad mov;
 
-    if(nuevaFila >= 0 && nuevaFila < filas && nuevaColumna >= 0 && nuevaColumna < col) // Mientras esté dentro de la matriz
+    if(nuevaFila >= 0 && nuevaFila < filas && nuevaColumna >= 0 && nuevaColumna < col) // Mientras estï¿½ dentro de la matriz
     {
         if(matriz[nuevaFila][nuevaColumna] != PARED)
         {

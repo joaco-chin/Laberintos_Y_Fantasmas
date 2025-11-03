@@ -1,7 +1,7 @@
 #ifndef INTERNO_PANTALLA_H_INCLUDED
 #define INTERNO_PANTALLA_H_INCLUDED
 
-#include <curses.h>
+#include "../comun/compat_curses.h"
 
 #define TAM_PAL_OPCION 50
 #define SIN_TITULO "\0"
