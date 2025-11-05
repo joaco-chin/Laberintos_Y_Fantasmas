@@ -61,18 +61,18 @@ void escribirJugadorEnArchivo(const tJugadorArbol *nuevoJugador, FILE *archivoJu
 
 void procesarPeticion(const char *peticion, char *respuesta, FILE *archivoJugadores, unsigned desplazamiento, FILE *archivoPartidas, tLista *listaRanking)
 {
-    // aca se realiza en desencolado (?????s)
-
     if (strcmp(peticion, "VER_RANKING") == 0)
     {
         mostrarRankingDeJugadores(listaRanking, respuesta);
     }
-    else if (strncmp(peticion, "GUARDAR_PUNTUACION", 18) == 0)
+    else if (strncmp(peticion, "PARTIDA", 7) == 0)
     {
         tJugadorArchivo jugadorActualizado = actualizarPuntuacionJugador(peticion, archivoJugadores, desplazamiento, archivoPartidas);
         printf("Partida registrada y puntuacion actualizada para el jugador en desplazamiento %d\n", desplazamiento);
         strcpy(respuesta, "Partida registrada y puntuacion actualizada correctamente\n");
-        actualizarListaRanking(listaRanking, &jugadorActualizado, compararPuntuacionJugadores, compararIDJugadores);
+        
+        if (strstr(peticion, "PARTIDA_PERDIDA") == NULL)
+            actualizarListaRanking(listaRanking, &jugadorActualizado, compararPuntuacionJugadores, compararIDJugadores);
     }
     else
         strcpy(respuesta, "Comando no reconocido\n");
@@ -95,13 +95,20 @@ tJugadorArchivo actualizarPuntuacionJugador(const char *peticion, FILE *archivoJ
     fread(&jugador, sizeof(tJugadorArchivo), 1, archivoJugadores);
     fseek(archivoJugadores, 0, SEEK_CUR);
 
-    // extraer nueva puntuacion de la peticion "GUARDAR_PUNTUACION|%d|%d"  -> puntos|cantMovimientos
-    unsigned puntos, cantMovimientos;
-    char dificultad[MAX_DIFICULTAD];
-    sscanf(peticion, "GUARDAR_PUNTUACION|%u|%u|%s", &puntos, &cantMovimientos, dificultad);
-
+    // extraer nueva puntuacion de la peticion "PARTIDA|%d|%d|%s|%s"  -> puntos|cantMovimientos|dificultad|resultado
+    tPartidaArchivo partida;
+    partida.idJugador = jugador.id;
+    strcpy(partida.nombre, jugador.nombre);
+    sscanf(peticion,
+           "PARTIDA|%u|%u|%[^|]|%[^|]",
+           &partida.puntuacionObtenida,
+           &partida.cantMovimientos,
+           partida.dificultad,
+           partida.resultado);
+    printf("dificultad partida: %s\n", partida.dificultad);
+    printf("resultado partida: %s\n", partida.resultado);
     // sumar nueva puntuacion
-    jugador.puntuacion += puntos;
+    jugador.puntuacion += partida.puntuacionObtenida;
     jugador.partidasJugadas += 1;
 
     // escribir datos actualizados del jugador
@@ -110,24 +117,17 @@ tJugadorArchivo actualizarPuntuacionJugador(const char *peticion, FILE *archivoJ
     fflush(archivoJugadores);
     fseek(archivoJugadores, 0, SEEK_CUR);
 
-    escribirPartidaEnArchivo(&jugador, puntos, cantMovimientos, dificultad, archivoPartidas);
+    escribirPartidaEnArchivo(&partida, archivoPartidas);
 
     return jugador;
 }
 
-void escribirPartidaEnArchivo(tJugadorArchivo *jugador, unsigned puntos, unsigned cantMovimientos, const char *dificultad, FILE *archivoPartidas)
+void escribirPartidaEnArchivo(tPartidaArchivo *partida, FILE *archivoPartidas)
 {
-    tPartidaArchivo partida;
     fseek(archivoPartidas, 0, SEEK_END);
     unsigned long tamanioArchivo = ftell(archivoPartidas);
-    fseek(archivoPartidas, 0, SEEK_CUR);
-    partida.idPartida = (unsigned)(tamanioArchivo / sizeof(tPartidaArchivo)) + 1;
-    partida.idJugador = jugador->id;
-    strcpy(partida.nombre, jugador->nombre);
-    partida.puntuacionObtenida = puntos;
-    partida.cantMovimientos = cantMovimientos;
-    strcpy(partida.dificultad, dificultad);
-    fwrite(&partida, sizeof(tPartidaArchivo), 1, archivoPartidas);
+    partida->idPartida = (unsigned)(tamanioArchivo / sizeof(tPartidaArchivo)) + 1;
+    fwrite(partida, sizeof(tPartidaArchivo), 1, archivoPartidas);
     fflush(archivoPartidas);
 }
 
@@ -225,7 +225,6 @@ int listaRankingAarchivo(tLista *listaRanking, FILE *archivoRanking)
 // funciones auxiliares de juegadores
 void accionMostrarNodoJugadorArbol(void *dato, size_t tamDato, unsigned n, void *params)
 {
-    // aca se muestra al reves y horizontalmente, los menores a la derecha y los mayores a la izquierda
     tJugadorArbol *jugador = (tJugadorArbol *)dato;
     printf("%*s[%d,%s,%d]\n\n", n * 7, "", jugador->id, jugador->nombre, jugador->desplazamiento);
 }
@@ -265,4 +264,76 @@ int compararPuntuacionJugadores(const void *jugadorA, const void *jugadorB)
     const tJugadorArchivo *j2 = (const tJugadorArchivo *)jugadorB;
 
     return j1->puntuacion - j2->puntuacion;
+}
+
+// funciones de archivos
+void mostrarArchivoPartidas(const char *nombreArchivo)
+{
+    FILE *archivoPartidas = fopen(nombreArchivo, "rb");
+    if (archivoPartidas != NULL)
+    {
+        tPartidaArchivo partida;
+        printf("Contenido del archivo de partidas:\n");
+        while (fread(&partida, sizeof(tPartidaArchivo), 1, archivoPartidas))
+        {
+            printf("ID: %d | ID Jugador: %d | Nombre: %s | Puntuacion: %d | Movimientos: %d | dificultad: %s | Resultado: %s\n",
+                   partida.idPartida,
+                   partida.idJugador,
+                   partida.nombre,
+                   partida.puntuacionObtenida,
+                   partida.cantMovimientos,
+                   partida.dificultad,
+                   partida.resultado);
+        }
+        fclose(archivoPartidas);
+    }
+    else
+    {
+        printf("No se pudo abrir el archivo de partidas: %s\n", nombreArchivo);
+    }
+}
+
+void mostrarArchivoJugadores(const char *nombreArchivo)
+{
+    FILE *archivoJugadores = fopen(nombreArchivo, "rb");
+    if (archivoJugadores != NULL)
+    {
+        tJugadorArchivo jugador;
+        printf("Contenido del archivo de jugadores:\n");
+        while (fread(&jugador, sizeof(tJugadorArchivo), 1, archivoJugadores))
+        {
+            printf("ID: %d | Nombre: %s | Puntuacion: %d | Partidas Jugadas: %d\n",
+                   jugador.id,
+                   jugador.nombre,
+                   jugador.puntuacion,
+                   jugador.partidasJugadas);
+        }
+        fclose(archivoJugadores);
+    }
+    else
+    {
+        printf("No se pudo abrir el archivo de jugadores: %s\n", nombreArchivo);
+    }
+}
+
+void mostrarArchivoIndices(const char *nombreArchivo)
+{
+    FILE *archivoIndices = fopen(nombreArchivo, "rb");
+    if (archivoIndices != NULL)
+    {
+        tJugadorArbol jugador;
+        printf("Contenido del archivo de indices:\n");
+        while (fread(&jugador, sizeof(tJugadorArbol), 1, archivoIndices))
+        {
+            printf("ID: %d | Nombre: %s | Desplazamiento: %d\n",
+                   jugador.id,
+                   jugador.nombre,
+                   jugador.desplazamiento);
+        }
+        fclose(archivoIndices);
+    }
+    else
+    {
+        printf("No se pudo abrir el archivo de indices: %s\n", nombreArchivo);
+    }
 }

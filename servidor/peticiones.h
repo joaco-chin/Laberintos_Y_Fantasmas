@@ -15,6 +15,7 @@
 #define ARCHIVO_RANKING "ranking.bin"
 #define MAX_NOMBRE_JUGADOR 50
 #define MAX_DIFICULTAD 20
+#define MAX_RESULTADO_PARTIDA 20
 
 typedef struct
 {
@@ -39,6 +40,7 @@ typedef struct
     unsigned puntuacionObtenida;
     unsigned cantMovimientos;
     char dificultad[MAX_DIFICULTAD];
+    char resultado[MAX_RESULTADO_PARTIDA];
 } tPartidaArchivo;
 
 int archivoRankingAlista(tLista *listaRanking, FILE *archivoRanking);
@@ -47,7 +49,7 @@ int abrirArchivosDeDatos(FILE **archivoJugadores, FILE **archivoPartidas, FILE *
 void cerrarArchivosDeDatos(FILE *archivoJugadores, FILE *archivoPartidas, FILE *archivoRanking);
 void escribirJugadorEnArchivo(const tJugadorArbol *nuevoJugador, FILE *archivoJugadores);
 int procesarNombreJugador(SOCKET cliente, char *buffer, char *respuesta, tArbol *arbolJugadores, FILE *archivoJugadores);
-void escribirPartidaEnArchivo(tJugadorArchivo *jugador, unsigned puntos, unsigned cantMovimientos, const char *dificultad, FILE *archivoPartidas);
+void escribirPartidaEnArchivo(tPartidaArchivo *partida, FILE *archivoPartidas);
 void actualizarListaRanking(tLista *listaRanking, const tJugadorArchivo *jugadorActualizado, Cmp cmpPuntuacion, Cmp cmpID);
 void mostrarRankingDeJugadores(tLista *listaRanking, char *respuesta);
 tJugadorArchivo actualizarPuntuacionJugador(const char *peticion, FILE *archivoJugadores, unsigned desplazamiento, FILE *archivoPartidas);
@@ -60,5 +62,10 @@ void accionMostrarNodoJugadorLista(const void *a);
 void accionCopiarNodoListaEnRespuesta(void *destino, const void *origen);
 int compararIDJugadores(const void *jugadorA, const void *jugadorB);
 int compararPuntuacionJugadores(const void *jugadorA, const void *jugadorB);
+
+// funciones de archivos
+void mostrarArchivoPartidas(const char *nombreArchivo);
+void mostrarArchivoJugadores(const char *nombreArchivo);
+void mostrarArchivoIndices(const char *nombreArchivo);
 
 #endif // PETICIONES_H_INCLUDED

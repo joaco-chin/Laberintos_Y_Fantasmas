@@ -6,6 +6,7 @@
 #include "estructuras_arbol.h"
 #include "peticiones.h"
 #include "estructuras_lista.h"
+#include "estructuras_cola.h"
 
 void correrServidor()
 {
@@ -40,6 +41,7 @@ void correrServidor()
     char buffer[BUFFER_SIZE];
     char respuesta[BUFFER_SIZE];
     int bytesRecibidos;
+    tCola colaMensajes;
 
     // INDICE A ARBOL
     tArbol arbolJugadores;
@@ -83,32 +85,58 @@ void correrServidor()
     printf("Cliente conectado\n");
     int desplazamiento = procesarNombreJugador(cliente, buffer, respuesta, &arbolJugadores, archivoJugadores);
     respuesta[0] = '\0';
+    colaCrear(&colaMensajes);
 
-    while ((bytesRecibidos = recv(cliente, buffer, BUFFER_SIZE - 1, 0)) > 0)
+    while (1)
     {
-        // realizar encolado aca(?????)
+        bytesRecibidos = recv(cliente, buffer, BUFFER_SIZE - 1, 0);
+        if (bytesRecibidos > 0)
+        {
+            buffer[bytesRecibidos] = '\0';
+            printf("Peticion recibida: %s\n", buffer);
+            colaEncolar(&colaMensajes, buffer, BUFFER_SIZE);
+        }
+        else if (bytesRecibidos == 0)
+        {
+            printf("Conexion cerrada por el cliente\n");
+            break;
+        }
+        else
+        {
+            printf("Error al recibir datos\n");
+            break;
+        }
 
-        buffer[bytesRecibidos] = '\0';
-        printf("Peticion recibida: %s\n", buffer);
+        while (colaEstaVacia(&colaMensajes) != COLA_VACIA)
+        {
+            colaDesencolar(&colaMensajes, buffer, BUFFER_SIZE);
 
-        procesarPeticion(buffer, respuesta, archivoJugadores, desplazamiento, archivoPartidas, &listaRanking);
+            printf("Procesando peticion de la cola: %s\n", buffer);
+            procesarPeticion(buffer, respuesta, archivoJugadores, desplazamiento, archivoPartidas, &listaRanking);
 
-        send(cliente, respuesta, strlen(respuesta), 0);
-        respuesta[0] = '\0';
+            send(cliente, respuesta, strlen(respuesta), 0);
+            respuesta[0] = '\0';
+        }
+        Sleep(100);
     }
-
-    printf("Cliente desconectado\n");
 
     listaRankingAarchivo(&listaRanking, archivoRanking);
     guardarArbolEnArchivo(&arbolJugadores, ARCHIVO_INDICE);
 
     arbolVaciar(&arbolJugadores);
     listaVaciar(&listaRanking);
+    colaVaciar(&colaMensajes);
     cerrarArchivosDeDatos(archivoJugadores, archivoPartidas, archivoRanking);
 
     closesocket(cliente);
     closesocket(servidor);
     WSACleanup();
+
+
+    // mostrar archivos
+    mostrarArchivoPartidas(ARCHIVO_PARTIDAS);
+    mostrarArchivoJugadores(ARCHIVO_JUGADORES);
+    mostrarArchivoIndices(ARCHIVO_INDICE);
 }
 
 SOCKET crearSocketServidor()
