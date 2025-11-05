@@ -1,8 +1,8 @@
 #include "interno_matriz.h"
+#include "..\comun\codigosRet.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "codigosRet.h"
 
 void **matrizCrear(unsigned tamElem, int filas, int columnas)
 {

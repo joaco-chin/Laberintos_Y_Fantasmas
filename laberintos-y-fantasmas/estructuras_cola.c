@@ -1,5 +1,5 @@
 #include "estructuras_cola.h"
-#include "codigosRet.h"
+#include "..\comun\codigosRet.h"
 #include <stdlib.h>
 #include <string.h>
 #include "generico.h"

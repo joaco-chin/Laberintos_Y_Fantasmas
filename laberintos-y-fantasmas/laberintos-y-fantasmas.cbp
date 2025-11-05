@@ -36,7 +36,6 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="codigosRet.h" />
 		<Unit filename="estructuras_cola.c">
 			<Option compilerVar="CC" />
 		</Unit>

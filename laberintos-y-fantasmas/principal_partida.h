@@ -25,7 +25,6 @@
 int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tLista* fantasmas, tConfig *conf, int filaEntrada, int columnaEntrada);
 int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tLista *registro, tCola* movimientos, int altoStdscr, int anchoStdscr);
 void desencolarMovimientosPartida(char** matriz, int cf, int cc, tCola* movimientos, tLista* listaFantasmas);
-int procesarEventosDePartida(char **matriz, tConfig *conf, tJugador *jug, tLista *fantasmas, tCola *movimientos, tPosicion entradaYSalida[]);
 int determinarBonificacion(const char *dif);
 void dibujarInicioPantalla(char **matriz, int cc, int cf);
 void dibujarPantalla(char **matriz, int cc, int cf, const char* dificultad, int vidas, int puntos);

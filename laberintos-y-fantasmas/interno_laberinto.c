@@ -1,6 +1,6 @@
 #include "interno_laberinto.h"
+#include "..\comun\codigosRet.h"
 #include "interno_fantasma.h"
-#include "codigosRet.h"
 
 void generarLaberintoAleatorio(char **matriz, int filas, int columnas, unsigned *fantasmas, unsigned *premios,
 unsigned *vidasExtra, tLista* listaFantasmas, tPosicion entradaYsalida[])
