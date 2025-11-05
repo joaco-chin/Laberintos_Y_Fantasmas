@@ -1,5 +1,5 @@
 #include "estructuras_lista.h"
-#include "codigosRet.h"
+#include "..\comun\codigosRet.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,7 +37,12 @@ int listaInsertarAlInicio(tLista* pl, const void* info, unsigned tamInfo)
 
 int listaInsertarAlFinal(tLista *pl, const void *info, unsigned tamInfo)
 {
-    tNodo *nuevo = (tNodo *)malloc(sizeof(tNodo));
+    tNodo *nuevo;
+
+    while (*pl)
+        pl = &(*pl)->sig;
+
+    nuevo = (tNodo *)malloc(sizeof(tNodo));
     if (nuevo == NULL)
         return SIN_MEM;
     nuevo->info = malloc(tamInfo);
@@ -50,9 +55,6 @@ int listaInsertarAlFinal(tLista *pl, const void *info, unsigned tamInfo)
     memcpy(nuevo->info, info, tamInfo);
     nuevo->tamInfo = tamInfo;
     nuevo->sig = NULL;
-
-    while (*pl)
-        pl = &(*pl)->sig;
 
     *pl = nuevo;
 

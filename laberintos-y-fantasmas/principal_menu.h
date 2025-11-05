@@ -26,7 +26,6 @@
 #define TERMINAR 0
 
 void actualizarMenu(char matriz[][TAM_PAL_OPCION], int cf, int *posAct, int posNueva);
-void mostrarMenu(char matriz[][TAM_PAL_OPCION], int filas);
 void menuPrincipal(SOCKET sock, int altoStdscr, int anchoStdscr);
 int menuDeConfirmacion(int altoStdscr, int anchoStdscr);
 int menuDePausa(int altoStdscr, int anchoStdscr);

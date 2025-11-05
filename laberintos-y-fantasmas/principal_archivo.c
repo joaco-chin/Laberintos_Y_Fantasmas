@@ -1,8 +1,8 @@
 #include "principal_archivo.h"
+#include "..\comun\codigosRet.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "codigosRet.h"
 
 int inicializarConfConTxt(char *linea, void *buffer, const char *nomArchConf)
 {

@@ -1,7 +1,7 @@
 #include "interno_fantasma.h"
+#include "..\comun\codigosRet.h"
 #include "principal_menu.h"
 #include "interno_laberinto.h"
-#include "codigosRet.h"
 #include <math.h>
 #include <stdio.h>
 /*

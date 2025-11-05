@@ -3,50 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-//#include <windows.h>
 #include "principal_menu.h"
 #include "interno_matriz.h"
-
-//void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna)
-//{
-//    if (nuevaFila >= 0 && nuevaFila < filas && nuevaColumna >= 0 && nuevaColumna < col)
-//    {
-//        if (matriz[nuevaFila][nuevaColumna] != PARED)
-//        {
-//            matriz[jug->posFil][jug->posCol] = CAMINO;
-//            jug->posFil = nuevaFila;
-//            jug->posCol = nuevaColumna;
-//
-//            actualizarPuntosYVidas(jug, matriz[jug->posFil][jug->posCol]);
-//
-//            matriz[jug->posFil][jug->posCol] = JUGADOR;
-//        }
-//    }
-//}
-
-//void matrizActualizarPosicionDeJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna)
-//{
-//    if (nuevaFila >= 0 && nuevaFila < filas && nuevaColumna >= 0 && nuevaColumna < col)
-//    {
-//        if (matriz[nuevaFila][nuevaColumna] != PARED)
-//        {
-//            matriz[jug->inGame.y][jug->inGame.x] = CAMINO;
-//            jug->inGame.y = nuevaFila;
-//            jug->inGame.x = nuevaColumna;
-//
-//            actualizarPuntosYVidas(jug, matriz[jug->inGame.y][jug->inGame.x]);
-//
-//            matriz[jug->inGame.y][jug->inGame.x] = JUGADOR;
-//        }
-//    }
-//}
 
 void moverJugador(char **matriz, int filas, int col, tJugador *jug, int nuevaFila, int nuevaColumna, tCola* colaMovimientos)
 {
     int codigoDeError = TODO_OK;
     tEntidad mov;
 
-    if(nuevaFila >= 0 && nuevaFila < filas && nuevaColumna >= 0 && nuevaColumna < col) // Mientras est� dentro de la matriz
+    if(nuevaFila >= 0 && nuevaFila < filas && nuevaColumna >= 0 && nuevaColumna < col) // Mientras esté dentro de la matriz
     {
         if(matriz[nuevaFila][nuevaColumna] != PARED)
         {

@@ -1,6 +1,6 @@
 #include "principal_partida.h"
+#include "..\comun\codigosRet.h"
 #include <stdio.h>
-#include "codigosRet.h"
 #include "principal_menu.h"
 #include "interno_fantasma.h"
 #include "estructuras_lista.h"
@@ -59,6 +59,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *f
     tCola movimientos; // Cola para guardar los movimientos de la partida
     tLista registro;    // Cola para guardar el registro de los movimientos del jugador // CAMBIAR POR UNA LISTA
     int bonificacion = determinarBonificacion(conf->dificultad);
+    int tecla;
 
     jug.inGame.y = entradaYSalida[0].fila;
     jug.inGame.x = entradaYSalida[0].columna;
@@ -81,10 +82,12 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *f
 
         if(salida == REANUDAR)
         {
-            salida = procesarEventosDePartida(matriz, conf, &jug, fantasmas, &movimientos, entradaYSalida);
+            calcularMovimientosFantasmas(matriz, conf->fil, conf->col, fantasmas, &jug, &movimientos);
+            desencolarMovimientosPartida(matriz, conf->fil, conf->col, &movimientos, fantasmas);
+            actualizarPuntosYVidas(&jug, matriz);
+            salida = actualizarPartidaPorEstadoDeVidas(matriz, &jug, fantasmas, conf, entradaYSalida[0].fila, entradaYSalida[0].columna);
             dibujarPartida(matriz, conf->fil, conf->col, conf->dificultad, jug.vidas, jug.puntos);
         }
-
     }
 
     if(salida == TERMINAR)
@@ -97,16 +100,16 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *f
     clear();
     printw("Partida ganada! Puntos: %d|Bonificacion: %d|Total: %d|Movimientos: %d\n", jug.puntos, bonificacion, jug.puntos * bonificacion, jug.cantMovimientos);
     printw("Movimientos realizados:\n");
+    scrollok(stdscr, TRUE);
     listaRecorrer(&registro, impPosEnPantalla);
     refresh();
-    napms(TIEMPO_MENSAJE * 10);
+    scrollok(stdscr, FALSE);
 
     if (sockCliente != INVALID_SOCKET)
     {
         char mensaje[BUFFER_SIZE];
         sprintf(mensaje, "GUARDAR_PUNTUACION|%d|%d|%s", jug.puntos * bonificacion, jug.cantMovimientos, conf->dificultad);
         char respuesta[BUFFER_SIZE];
-        int tecla;
         if (enviarPeticion(sockCliente, mensaje, respuesta) == 0)
         {
             clear();
@@ -151,8 +154,6 @@ int procesarAccionDeJugador(char **matriz, int cf, int cc, tJugador *jug, tLista
     }
     else if(ES_MOVIMIENTO(tecla))
     {
-//        matrizActualizarPosicionDeJugador(matriz, cf, cc, jug,
-//                                          jug->posFil + (tecla == KEY_DOWN) - (tecla == KEY_UP), jug->posCol + (tecla == KEY_RIGHT) - (tecla == KEY_LEFT));
         moverJugador(matriz, cf, cc, jug, jug->inGame.y + (tecla == KEY_DOWN) - (tecla == KEY_UP),
         jug->inGame.x + (tecla == KEY_RIGHT) - (tecla == KEY_LEFT), movimientos);
 
@@ -202,17 +203,17 @@ void desencolarMovimientosPartida(char** matriz, int cf, int cc, tCola* movimien
     }
 }
 
-int procesarEventosDePartida(char **matriz, tConfig *conf, tJugador *jug, tLista *fantasmas, tCola *movimientos, tPosicion entradaYSalida[])
-{
-    calcularMovimientosFantasmas(matriz, conf->fil, conf->col, fantasmas, jug, movimientos);
-    desencolarMovimientosPartida(matriz, conf->fil, conf->col, movimientos, fantasmas);
-    actualizarPuntosYVidas(jug, matriz);
-    if(actualizarPartidaPorEstadoDeVidas(matriz, jug, fantasmas, conf, entradaYSalida[0].fila, entradaYSalida[0].columna) != REANUDAR)
-    {
-        return TERMINAR;
-    }
-    return REANUDAR;
-}
+//int procesarEventosDePartida(char **matriz, tConfig *conf, tJugador *jug, tLista *fantasmas, tCola *movimientos, tPosicion entradaYSalida[])
+//{
+//    calcularMovimientosFantasmas(matriz, conf->fil, conf->col, fantasmas, jug, movimientos);
+//    desencolarMovimientosPartida(matriz, conf->fil, conf->col, movimientos, fantasmas);
+//    actualizarPuntosYVidas(jug, matriz);
+//    if(actualizarPartidaPorEstadoDeVidas(matriz, jug, fantasmas, conf, entradaYSalida[0].fila, entradaYSalida[0].columna) != REANUDAR)
+//    {
+//        return TERMINAR;
+//    }
+//    return REANUDAR;
+//}
 
 int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tLista *fantasmas, tConfig *conf, int filaEntrada, int columnaEntrada)
 {
