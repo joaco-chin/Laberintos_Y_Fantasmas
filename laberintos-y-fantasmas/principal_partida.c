@@ -18,7 +18,7 @@ int configuracionPartida(SOCKET sockCliente, int altoStdscr, int anchoStdscr)
     // inicializa configuracion desde "config.txt"
     if ((codigoDeError = inicializarConfConTxt(linea, &conf, "config.txt")) != TODO_OK)
     {
-        puts("Error al trozar el archivo de configuracion");
+        fprintf(stderr, "Error al trozar el archivo de configuracion\n");
         return codigoDeError;
     }
 
@@ -26,7 +26,7 @@ int configuracionPartida(SOCKET sockCliente, int altoStdscr, int anchoStdscr)
     matLab = (char **)matrizCrear(sizeof(char), conf.fil, conf.col);
     if (matLab == NULL)
     {
-        puts("Sin memoria");
+        fprintf(stderr, "Sin memoria\n");
         return SIN_MEM;
     }
 

@@ -27,26 +27,14 @@ typedef struct
     int estaVivo;
 }tInfoNodo;
 
-typedef struct
-{
-    int fil;
-    int col;
-    int estaVivo;
-    char caracterAnterior;
-    tPosicion posInicial;
-}tFantasma;
-
 int aStarBusqueda(char** matriz, int cf, int cc, const tEntidad* inicio, const tEntidad* meta, tCola* movimientos);
 void calcularMovimientosFantasmas(char** matriz, int cf, int cc, tLista* fantasmas, const tJugador* jugador, tCola* movimientos);
 void limpiarFantasmas(char** matriz, tLista* listaFantasmas);
-void actualizarPosicionesFantasmas(char** matriz, int cf, int cc, tCola* colaFantasmas, tJugador* jugador, tCola* movimientos);
 int calcularHeuristica(const tInfoNodo* inicio, const tInfoNodo* meta);
 
 int buscarVecinos(int cf, int cc, const tInfoNodo* nodoAct, tCola* plVecinos);
 int cmpCostos(const void* a, const void* b);
 int cmpPos(const void* a, const void* b);
-int cmpPosFan(const void* a, const void* b);
-void impFan(const void* a);
 int cmpPosEntidad(const void* a, const void* b);
 int cmpPosIniciales(const void* a, const void* b);
 void resetearFantasma(void* info);
