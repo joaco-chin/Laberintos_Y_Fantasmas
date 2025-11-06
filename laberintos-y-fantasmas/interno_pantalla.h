@@ -6,6 +6,7 @@
 #define TAM_PAL_OPCION 50
 #define SIN_TITULO "\0"
 #define TIEMPO_MENSAJE 1000
+#define TIEMPO_MENSAJE_MOV 50
 
 void dibujarTitulos(int altoStdscr, int anchoStdscr);
 void dibujarMenu(char matriz[][TAM_PAL_OPCION], int cf, const char* titulo, int altoStdscr, int anchoStdscr);

@@ -54,4 +54,6 @@ void impPosEnPantalla(const void* a)
 {
     const tPosicion* posJugador = (tPosicion*)a;
     printw("Fila:%d|Columna%d\n", posJugador->fila, posJugador->columna);
+    refresh();
+    napms(TIEMPO_MENSAJE_MOV);
 }
