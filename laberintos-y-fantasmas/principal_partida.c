@@ -124,7 +124,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *f
     }
 
     if (salida == TERMINAR)
-         ret = PARTIDA_PERDIDA;
+        ret = PARTIDA_PERDIDA;
     else
     {
         clear();
@@ -135,7 +135,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *f
         printw("-> Volver");
         refresh();
         tecla = getch();
-        while(tecla != ENTER)
+        while (tecla != ENTER)
         {
             tecla = getch();
         }
@@ -186,7 +186,13 @@ void desencolarMovimientosPartida(char **matriz, int cf, int cc, tCola *movimien
         if (pos != NO_ENCONTRADO)
         {
             listaRemoverPorPos(fantasmas, &aux, sizeof(tEntidad), pos);
-            matriz[aux.y][aux.x] = entidad.caracterFondo;
+
+            matriz[aux.y][aux.x] = aux.caracterFondo;
+            if (matriz[entidad.y][entidad.x] != FANTASMA)
+            {
+                entidad.caracterFondo = matriz[entidad.y][entidad.x];
+            }
+
             if (!(aux.caracterEnt == FANTASMA && matriz[entidad.y][entidad.x] == JUGADOR))
             {
                 listaInsertarAlInicio(fantasmas, &entidad, sizeof(tEntidad));
@@ -195,11 +201,6 @@ void desencolarMovimientosPartida(char **matriz, int cf, int cc, tCola *movimien
             {
                 entidad.estaVivo = FANTASMA_MUERTO;
             }
-        }
-
-        if (matriz[entidad.y][entidad.x] != FANTASMA)
-        {
-            entidad.caracterFondo = matriz[entidad.y][entidad.x];
         }
 
         if (entidad.caracterEnt == JUGADOR && matriz[entidad.y][entidad.x] == FANTASMA)
