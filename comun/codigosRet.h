@@ -7,6 +7,7 @@
 #define SIN_MEM -2
 #define ERR_LINEA_LARGA -3
 #define NO_ENCONTRADO -1
+#define LABERINTO_MUY_CHICO -5
 
 // Códigos Booleanos
 #define VERDADERO 1
