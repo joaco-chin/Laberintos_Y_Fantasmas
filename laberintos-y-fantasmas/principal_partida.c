@@ -60,6 +60,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *f
     tLista registro;   // Cola para guardar el registro de los movimientos del jugador // CAMBIAR POR UNA LISTA
     int bonificacion = determinarBonificacion(conf->dificultad);
     int tecla;
+    int ret;
 
     jug.inGame.y = entradaYSalida[0].fila;
     jug.inGame.x = entradaYSalida[0].columna;
@@ -90,7 +91,6 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *f
         }
     }
 
-    int ret;
     if (sockCliente != INVALID_SOCKET)
     {
         char mensaje[BUFFER_SIZE];
@@ -132,9 +132,14 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *f
         printw("Movimientos realizados:\n");
         scrollok(stdscr, TRUE);
         listaRecorrer(&registro, impPosEnPantalla);
+        printw("-> Volver");
         refresh();
+        tecla = getch();
+        while(tecla != ENTER)
+        {
+            tecla = getch();
+        }
         scrollok(stdscr, FALSE);
-        napms(TIEMPO_MENSAJE * 10);
         ret = PARTIDA_GANADA;
     }
 
