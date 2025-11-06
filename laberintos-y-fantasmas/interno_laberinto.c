@@ -205,19 +205,19 @@ void colocarCaracteresEspeciales(char **matriz, int filas, int columnas, unsigne
     unsigned cantFantasmas = colocarCaracteresEnPosicionesAleatorias(matriz, filas, columnas, FANTASMA, *fantasmas, listaFantasmas);
     if (cantFantasmas != *fantasmas)
     {
-        printf("Se generaron %d fantasmas en lugar de %d\n", cantFantasmas, *fantasmas);
+        fprintf(stderr, "Se generaron %d fantasmas en lugar de %d\n", cantFantasmas, *fantasmas);
         *fantasmas = cantFantasmas;
     }
     unsigned cantVidasExtra = colocarCaracteresEnPosicionesAleatorias(matriz, filas, columnas, VIDA_EXTRA, *vidasExtra, listaFantasmas);
     if (cantVidasExtra != *vidasExtra)
     {
-        printf("Se generaron %d vidas extra en lugar de %d\n", cantVidasExtra, *vidasExtra);
+        fprintf(stderr, "Se generaron %d vidas extra en lugar de %d\n", cantVidasExtra, *vidasExtra);
         *vidasExtra = cantVidasExtra;
     }
     unsigned cantPremios = colocarCaracteresEnPosicionesAleatorias(matriz, filas, columnas, PREMIO, *premios, listaFantasmas);
     if (cantPremios != *premios)
     {
-        printf("Se generaron %d premios en lugar de %d\n", cantPremios, *premios);
+        fprintf(stderr, "Se generaron %d premios en lugar de %d\n", cantPremios, *premios);
         *premios = cantPremios;
     }
 }

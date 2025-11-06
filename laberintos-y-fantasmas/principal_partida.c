@@ -22,6 +22,12 @@ int configuracionPartida(SOCKET sockCliente, int altoStdscr, int anchoStdscr)
         return codigoDeError;
     }
 
+    if(conf.fil < 5 && conf.col < 5)
+    {
+        fprintf(stderr, "Error, tamanio de laberinto muy chico para las operaciones a realizar\n");
+        return LABERINTO_MUY_CHICO;
+    }
+
     // crea la matriz
     matLab = (char **)matrizCrear(sizeof(char), conf.fil, conf.col);
     if (matLab == NULL)
