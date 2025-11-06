@@ -163,7 +163,7 @@ int subMenuDeDificultad(int altoStdscr, int anchoStdscr, int altoMatriz, int anc
     switch(pos)
     {
     case OPCION_FACIL:
-        fprintf(pf, "%d|%d|%d|%d|%d|%d|FACIL\n", altoMatriz, anchoMatriz, 2, cantFantasmas, 10, cantFantasmas / 2);
+        fprintf(pf, "%d|%d|%d|%d|%d|%d|FACIL\n", altoMatriz, anchoMatriz, 2, cantFantasmas, 10, cantFantasmas / 2 + 1);
         break;
     case OPCION_NORMAL:
         fprintf(pf, "%d|%d|%d|%d|%d|%d|NORMAL\n", altoMatriz, anchoMatriz, 2, cantFantasmas, 10, cantFantasmas / 2);
