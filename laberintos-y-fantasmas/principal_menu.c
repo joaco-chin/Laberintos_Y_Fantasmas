@@ -1,6 +1,6 @@
 #include "principal_menu.h"
+#include "..\comun\codigosRet.h"
 #include <stdio.h>
-#include "codigosRet.h"
 #include "interno_cliente.h"
 #include "interno_jugador.h"
 
@@ -224,17 +224,6 @@ void actualizarMenu(char matriz[][TAM_PAL_OPCION], int cf, int *posAct, int posN
 
         matriz[*posAct][0] = '-';
         matriz[*posAct][1] = '>';
-    }
-}
-
-void mostrarMenu(char matriz[][TAM_PAL_OPCION], int filas)
-{
-    int i;
-
-    for (i = 0; i < filas; i++)
-    {
-        puts(matriz[i]);
-        putchar('\n');
     }
 }
 

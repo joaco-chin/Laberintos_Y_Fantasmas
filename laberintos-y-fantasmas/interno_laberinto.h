@@ -7,23 +7,12 @@
 #include <time.h>
 
 #include "interno_matriz.h"
-#include "codigosRet.h"
+#include "..\comun\codigosRet.h"
 #include "generico.h"
 #include "estructuras_lista.h"
 #include "estructuras_cola.h"
 
-// poner esto en codigosRet.h??
-#define VERDADERO 1
-#define FALSO 0
-
-// esto lo use solo para probar
-#define FILAS 12
-#define COLUMNAS 15
-#define MAX_FANTASMAS 5
-#define MAX_PREMIOS 5
-#define MAX_VIDAS_EXTRA 5
 #define CANT_MAX_DIREC 4
-//-----
 
 #define PARED '#'
 #define PARED_TEMPORAL '$'

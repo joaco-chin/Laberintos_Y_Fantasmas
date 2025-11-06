@@ -37,7 +37,6 @@ typedef struct
 }tFantasma;
 
 int aStarBusqueda(char** matriz, int cf, int cc, const tEntidad* inicio, const tEntidad* meta, tCola* movimientos);
-//void calcularMovimientosFantasmas(char** matriz, int cf, int cc, tCola* colaFantasmas, const tJugador* jugador, tCola* movimientos);
 void calcularMovimientosFantasmas(char** matriz, int cf, int cc, tLista* fantasmas, const tJugador* jugador, tCola* movimientos);
 void limpiarFantasmas(char** matriz, tLista* listaFantasmas);
 void actualizarPosicionesFantasmas(char** matriz, int cf, int cc, tCola* colaFantasmas, tJugador* jugador, tCola* movimientos);
