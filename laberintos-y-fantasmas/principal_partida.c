@@ -203,18 +203,6 @@ void desencolarMovimientosPartida(char** matriz, int cf, int cc, tCola* movimien
     }
 }
 
-//int procesarEventosDePartida(char **matriz, tConfig *conf, tJugador *jug, tLista *fantasmas, tCola *movimientos, tPosicion entradaYSalida[])
-//{
-//    calcularMovimientosFantasmas(matriz, conf->fil, conf->col, fantasmas, jug, movimientos);
-//    desencolarMovimientosPartida(matriz, conf->fil, conf->col, movimientos, fantasmas);
-//    actualizarPuntosYVidas(jug, matriz);
-//    if(actualizarPartidaPorEstadoDeVidas(matriz, jug, fantasmas, conf, entradaYSalida[0].fila, entradaYSalida[0].columna) != REANUDAR)
-//    {
-//        return TERMINAR;
-//    }
-//    return REANUDAR;
-//}
-
 int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tLista *fantasmas, tConfig *conf, int filaEntrada, int columnaEntrada)
 {
     if(jug->vidas < conf->vidasInicio)
