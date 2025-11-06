@@ -124,7 +124,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *f
     }
 
     if (salida == TERMINAR)
-         ret = PARTIDA_PERDIDA;
+        ret = PARTIDA_PERDIDA;
     else
     {
         clear();
@@ -135,7 +135,7 @@ int ejecucionPartida(char **matriz, tConfig *conf, SOCKET sockCliente, tLista *f
         printw("-> Volver");
         refresh();
         tecla = getch();
-        while(tecla != ENTER)
+        while (tecla != ENTER)
         {
             tecla = getch();
         }
@@ -186,7 +186,13 @@ void desencolarMovimientosPartida(char **matriz, int cf, int cc, tCola *movimien
         if (pos != NO_ENCONTRADO)
         {
             listaRemoverPorPos(fantasmas, &aux, sizeof(tEntidad), pos);
-            matriz[aux.y][aux.x] = entidad.caracterFondo;
+
+            matriz[aux.y][aux.x] = aux.caracterFondo;
+            if (matriz[entidad.y][entidad.x] != FANTASMA)
+            {
+                entidad.caracterFondo = matriz[entidad.y][entidad.x];
+            }
+
             if (!(aux.caracterEnt == FANTASMA && matriz[entidad.y][entidad.x] == JUGADOR))
             {
                 listaInsertarAlInicio(fantasmas, &entidad, sizeof(tEntidad));
@@ -195,11 +201,6 @@ void desencolarMovimientosPartida(char **matriz, int cf, int cc, tCola *movimien
             {
                 entidad.estaVivo = FANTASMA_MUERTO;
             }
-        }
-
-        if (matriz[entidad.y][entidad.x] != FANTASMA)
-        {
-            entidad.caracterFondo = matriz[entidad.y][entidad.x];
         }
 
         if (entidad.caracterEnt == JUGADOR && matriz[entidad.y][entidad.x] == FANTASMA)
@@ -216,7 +217,32 @@ int actualizarPartidaPorEstadoDeVidas(char **matriz, tJugador *jug, tLista *fant
 {
     if (jug->vidas < conf->vidasInicio)
     {
-        matriz[jug->inGame.y][jug->inGame.x] = CAMINO;
+        /* Guardar la posición donde el jugador perdió la vida para eliminar
+           cualquier fantasma que esté en esa casilla antes de resetear el
+           resto de los fantasmas. Esto evita que el fantasma "reviva"
+           volviendo a su posición inicial tras la limpieza. */
+        int muerteY = jug->inGame.y;
+        int muerteX = jug->inGame.x;
+
+        /* Primero limpiar la casilla donde estaba el jugador */
+        matriz[muerteY][muerteX] = CAMINO;
+
+        /* Intentar eliminar de la lista de fantasmas cualquiera que esté
+           en la posición de muerte (si existe). */
+        {
+            tEntidad clave;
+            tEntidad aux;
+            int pos;
+            clave.y = muerteY;
+            clave.x = muerteX;
+            pos = listaBuscarPorClave(fantasmas, &clave, cmpPosEntidad);
+            if (pos != NO_ENCONTRADO)
+            {
+                listaRemoverPorPos(fantasmas, &aux, sizeof(tEntidad), pos);
+            }
+        }
+
+        /* Regresar al jugador a la entrada */
         jug->inGame.y = filaEntrada;
         jug->inGame.x = columnaEntrada;
         matriz[jug->inGame.y][jug->inGame.x] = JUGADOR;

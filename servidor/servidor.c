@@ -134,9 +134,9 @@ void correrServidor()
 
 
     // mostrar archivos
-    mostrarArchivoPartidas(ARCHIVO_PARTIDAS);
-    mostrarArchivoJugadores(ARCHIVO_JUGADORES);
-    mostrarArchivoIndices(ARCHIVO_INDICE);
+    // mostrarArchivoPartidas(ARCHIVO_PARTIDAS);
+    // mostrarArchivoJugadores(ARCHIVO_JUGADORES);
+    // mostrarArchivoIndices(ARCHIVO_INDICE);
 }
 
 SOCKET crearSocketServidor()

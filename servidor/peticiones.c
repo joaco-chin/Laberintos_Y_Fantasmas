@@ -105,8 +105,7 @@ tJugadorArchivo actualizarPuntuacionJugador(const char *peticion, FILE *archivoJ
            &partida.cantMovimientos,
            partida.dificultad,
            partida.resultado);
-    printf("dificultad partida: %s\n", partida.dificultad);
-    printf("resultado partida: %s\n", partida.resultado);
+
     // sumar nueva puntuacion
     jugador.puntuacion += partida.puntuacionObtenida;
     jugador.partidasJugadas += 1;
