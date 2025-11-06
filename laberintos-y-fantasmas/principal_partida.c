@@ -188,6 +188,15 @@ void desencolarMovimientosPartida(char **matriz, int cf, int cc, tCola *movimien
             listaRemoverPorPos(fantasmas, &aux, sizeof(tEntidad), pos);
 
             matriz[aux.y][aux.x] = aux.caracterFondo;
+            /* Si la casilla objetivo ya contiene un fantasma, otro fantasma
+               ya se movió allí; reinserto al fantasma en su posición
+               original y salto este movimiento para evitar superposición. */
+            if (matriz[entidad.y][entidad.x] == FANTASMA)
+            {
+                matriz[aux.y][aux.x] = FANTASMA;
+                listaInsertarAlInicio(fantasmas, &aux, sizeof(tEntidad));
+                continue;
+            }
             if (matriz[entidad.y][entidad.x] != FANTASMA)
             {
                 entidad.caracterFondo = matriz[entidad.y][entidad.x];
