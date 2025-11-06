@@ -1,6 +1,8 @@
 #include "principal_menu.h"
 #include "..\comun\codigosRet.h"
+#include "generico.h"
 #include <stdio.h>
+#include "principal_archivo.h"
 #include "interno_cliente.h"
 #include "interno_jugador.h"
 
@@ -124,7 +126,7 @@ int menuDePausa(int altoStdscr, int anchoStdscr)
     return salida;
 }
 
-int subMenuDeDificultad(int altoStdscr, int anchoStdscr)
+int subMenuDeDificultad(int altoStdscr, int anchoStdscr, int altoMatriz, int anchoMatriz)
 {
     int pos = OPCION_NORMAL;
     int tecla;
@@ -135,6 +137,7 @@ int subMenuDeDificultad(int altoStdscr, int anchoStdscr)
         "   Dificil",
         "   Pesadilla"
     };
+    int cantFantasmas;
     FILE* pf = fopen("config.txt", "wt");
     if(!pf)
     {
@@ -155,19 +158,21 @@ int subMenuDeDificultad(int altoStdscr, int anchoStdscr)
         tecla = getch();
     }
 
+    cantFantasmas = MAX( ((altoMatriz + anchoMatriz) / 10) - 4, 2);
+
     switch(pos)
     {
     case OPCION_FACIL:
-        fprintf(pf, "%d|%d|%d|%d|%d|%d|FACIL\n", 27, 55, 4, 4, 10, 4);
+        fprintf(pf, "%d|%d|%d|%d|%d|%d|FACIL\n", altoMatriz, anchoMatriz, 2, cantFantasmas, 10, cantFantasmas / 2);
         break;
     case OPCION_NORMAL:
-        fprintf(pf, "%d|%d|%d|%d|%d|%d|NORMAL\n", 27, 55, 3, 5, 10, 2);
+        fprintf(pf, "%d|%d|%d|%d|%d|%d|NORMAL\n", altoMatriz, anchoMatriz, 2, cantFantasmas, 10, cantFantasmas / 2);
         break;
     case OPCION_DIFICIL:
-        fprintf(pf, "%d|%d|%d|%d|%d|%d|DIFICIL\n", 27, 55, 3, 6, 10, 2);
+        fprintf(pf, "%d|%d|%d|%d|%d|%d|DIFICIL\n", altoMatriz, anchoMatriz, 2, cantFantasmas + 1, 10, 2);
         break;
     case OPCION_PESADILLA:
-        fprintf(pf, "%d|%d|%d|%d|%d|%d|PESADILLA\n", 27, 55, 1, 6, 10, 0);
+        fprintf(pf, "%d|%d|%d|%d|%d|%d|PESADILLA\n", altoMatriz, anchoMatriz, 1, cantFantasmas + 1, 10, 0);
         break;
     }
 
@@ -175,7 +180,7 @@ int subMenuDeDificultad(int altoStdscr, int anchoStdscr)
     return TODO_OK;
 }
 
-void menuDeDificultad(int altoStdscr, int anchoStdscr)
+int menuDeDificultad(int altoStdscr, int anchoStdscr)
 {
     int tecla;
     int pos = 0;
@@ -184,6 +189,23 @@ void menuDeDificultad(int altoStdscr, int anchoStdscr)
         "-> Seleccionar dificultad",
         "   Volver al menu principal"
     };
+    char linea[TAM_LINEA_CONF];
+    tConfig configuracion;
+    FILE* pf = fopen("config.txt", "rt");
+    if(!pf)
+    {
+        return ERR_ARCHIVO;
+    }
+
+    if(fgets(linea, TAM_LINEA_CONF, pf))
+    {
+        if(trozarConfig(linea, &configuracion) == ERR_LINEA_LARGA)
+        {
+            fclose(pf);
+            return ERR_LINEA_LARGA;
+        }
+    }
+    fclose(pf);
 
     dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- DIFICULTAD -", altoStdscr, anchoStdscr);
     tecla = getch();
@@ -192,7 +214,7 @@ void menuDeDificultad(int altoStdscr, int anchoStdscr)
     {
         if(pos == 0 && tecla == ENTER)
         {
-            if(subMenuDeDificultad(altoStdscr, anchoStdscr) == ERR_ARCHIVO)
+            if(subMenuDeDificultad(altoStdscr, anchoStdscr, configuracion.fil, configuracion.col) == ERR_ARCHIVO)
             {
                 fprintf(stderr, "Error en la apertura del archivo\n");
             }
@@ -206,6 +228,8 @@ void menuDeDificultad(int altoStdscr, int anchoStdscr)
         dibujarMenu(matrizPantalla, CANT_OPCIONES_PAUSA, "- DIFICULTAD -", altoStdscr, anchoStdscr);
         tecla = getch();
     }
+
+    return TODO_OK;
 }
 
 void actualizarMenu(char matriz[][TAM_PAL_OPCION], int cf, int *posAct, int posNueva)

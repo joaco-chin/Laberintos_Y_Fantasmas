@@ -29,7 +29,7 @@ void actualizarMenu(char matriz[][TAM_PAL_OPCION], int cf, int *posAct, int posN
 void menuPrincipal(SOCKET sock, int altoStdscr, int anchoStdscr);
 int menuDeConfirmacion(int altoStdscr, int anchoStdscr);
 int menuDePausa(int altoStdscr, int anchoStdscr);
-int subMenuDeDificultad(int altoStdscr, int anchoStdscr);
-void menuDeDificultad(int altoStdscr, int anchoStdscr);
+int subMenuDeDificultad(int altoStdscr, int anchoStdscr, int altoMatriz, int anchoMatriz);
+int menuDeDificultad(int altoStdscr, int anchoStdscr);
 
 #endif // MENU_H_INCLUDED
